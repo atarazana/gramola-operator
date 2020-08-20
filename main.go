@@ -27,6 +27,9 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	// Route
+	routev1 "github.com/openshift/api/route/v1"
+
 	gramolav1 "github.com/atarazana/gramola-operator/api/v1"
 	"github.com/atarazana/gramola-operator/controllers"
 	// +kubebuilder:scaffold:imports
@@ -37,8 +40,13 @@ var (
 	setupLog = ctrl.Log.WithName("setup")
 )
 
+const (
+	operatorName = "gramola-operator"
+)
+
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(routev1.AddToScheme(scheme))
 
 	utilruntime.Must(gramolav1.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
@@ -68,9 +76,10 @@ func main() {
 	}
 
 	if err = (&controllers.AppServiceReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("AppService"),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Log:      ctrl.Log.WithName("controllers").WithName("AppService"),
+		Scheme:   mgr.GetScheme(),
+		Recorder: mgr.GetEventRecorderFor(operatorName),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "AppService")
 		os.Exit(1)

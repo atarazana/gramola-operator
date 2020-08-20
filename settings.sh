@@ -6,7 +6,7 @@ export OPERATOR_NAME=gramola-operator
 export OPERATOR_IMAGE=gramola-operator-image
 
 export DOMAIN=atarazana.com
-export API_VERSION=gramola.${DOMAIN}/v1alpha1
+export API_VERSION=gramola.${DOMAIN}/v1
 
 export PROJECT_NAME=${OPERATOR_NAME}-system
 

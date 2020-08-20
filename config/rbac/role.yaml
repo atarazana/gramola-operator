@@ -1,0 +1,90 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - events
+  - persistentvolumeclaims
+  - pods
+  - pods/exec
+  - secrets
+  - services
+  - services/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  - deployments/finalizers
+  - replicasets
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - '*'
+- apiGroups:
+  - gramola.atarazana.com
+  resources:
+  - appservices
+  verbs:
+  - '*'
+- apiGroups:
+  - gramola.atarazana.com
+  resources:
+  - appservices/finalizers
+  verbs:
+  - '*'
+- apiGroups:
+  - gramola.atarazana.com
+  resources:
+  - appservices/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - get
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - '*'
