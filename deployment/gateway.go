@@ -1,31 +1,103 @@
 package deployment
 
 import (
-	"fmt"
+	gramolav1 "github.com/atarazana/gramola-operator/api/v1"
+	version "github.com/atarazana/gramola-operator/version"
+	routev1 "github.com/openshift/api/route/v1"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
+	resource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	intstr "k8s.io/apimachinery/pkg/util/intstr"
 
-	gramolav1 "github.com/atarazana/gramola-operator/api/v1"
-	// +kubebuilder:scaffold:imports
+	client "sigs.k8s.io/controller-runtime/pkg/client"
+	controllerutil "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
+// Gateway services names
 const (
-	//gatewayImage = "image-registry.openshift-image-registry.svc:5000/gramola-operator-project/gateway-s2i"
-	gatewayImage = "quay.io/cvicensa/gramola-gateway:0.0.1"
+	GatewayServiceName     = "gateway"
+	GatewayServicePort     = 8080
+	GatewayServicePortName = "http"
+	GatewayServiceImage    = "quay.io/cvicensa/gramola-gateway:0.0.2"
 )
+
+// GatewayServiceReplicas number of replicas for Gateway Service
+var GatewayServiceReplicas = int32(2)
+
+// NewGatewayDeploymentPatch returns a Patch
+func NewGatewayDeploymentPatch(current *appsv1.Deployment) client.Patch {
+	patch := client.MergeFrom(current.DeepCopy())
+
+	current.Labels["version"] = version.Version
+
+	current.Spec.Replicas = &GatewayServiceReplicas
+	current.Spec.Template.Spec.Containers[0].Image = GatewayServiceImage
+
+	current.Spec.Template.Spec.Containers[0].ReadinessProbe = &corev1.Probe{
+		Handler: corev1.Handler{
+			HTTPGet: &corev1.HTTPGetAction{
+				Path: "/api/events",
+				Port: intstr.IntOrString{
+					Type:   intstr.Int,
+					IntVal: GatewayServicePort,
+				},
+				Scheme: corev1.URISchemeHTTP,
+			},
+		},
+		FailureThreshold:    3,
+		InitialDelaySeconds: 25,
+		PeriodSeconds:       2,
+		SuccessThreshold:    1,
+		TimeoutSeconds:      1,
+	}
+
+	current.Spec.Template.Spec.Containers[0].LivenessProbe = &corev1.Probe{
+		Handler: corev1.Handler{
+			HTTPGet: &corev1.HTTPGetAction{
+				Path: "/api/events",
+				Port: intstr.IntOrString{
+					Type:   intstr.Int,
+					IntVal: GatewayServicePort,
+				},
+				Scheme: corev1.URISchemeHTTP,
+			},
+		},
+		FailureThreshold:    3,
+		InitialDelaySeconds: 27,
+		PeriodSeconds:       2,
+		SuccessThreshold:    1,
+		TimeoutSeconds:      1,
+	}
+
+	return patch
+}
+
+// NewGatewayServicePatch returns a Patch
+func NewGatewayServicePatch(current *corev1.Service) client.Patch {
+	patch := client.MergeFrom(current.DeepCopy())
+
+	current.Labels["version"] = version.Version
+
+	return patch
+}
+
+// NewGatewayRoutePatch returns a Patch
+func NewGatewayRoutePatch(current *routev1.Route) client.Patch {
+	patch := client.MergeFrom(current.DeepCopy())
+
+	current.Labels["version"] = version.Version
+
+	return patch
+}
 
 // NewGatewayDeployment returns the deployment object for Gateway
-func NewGatewayDeployment(cr *gramolav1.AppService, name string, namespace string, servicesToConnect []string) *appsv1.Deployment {
-	image := gatewayImage
-	annotations := GetGatewayAnnotations(cr)
-	labels := GetAppServiceLabels(cr, name)
+func NewGatewayDeployment(instance *gramolav1.AppService, scheme *runtime.Scheme) (*appsv1.Deployment, error) {
+	annotations := GetGatewayAnnotations(instance)
+	labels := GetAppServiceLabels(instance, GatewayServiceName)
 	labels["app.kubernetes.io/name"] = "java"
-
-	fmt.Println(labels)
 
 	env := []corev1.EnvVar{
 		{
@@ -34,14 +106,14 @@ func NewGatewayDeployment(cr *gramolav1.AppService, name string, namespace strin
 		},
 	}
 
-	return &appsv1.Deployment{
+	deployment := &appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Deployment",
 			APIVersion: "apps/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        name,
-			Namespace:   namespace,
+			Name:        GatewayServiceName,
+			Namespace:   instance.Namespace,
 			Labels:      labels,
 			Annotations: annotations,
 		},
@@ -57,13 +129,13 @@ func NewGatewayDeployment(cr *gramolav1.AppService, name string, namespace strin
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Name:            name,
-							Image:           image,
+							Name:            GatewayServiceName,
+							Image:           GatewayServiceImage,
 							ImagePullPolicy: corev1.PullIfNotPresent,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          "http",
-									ContainerPort: 8080,
+									Name:          GatewayServicePortName,
+									ContainerPort: GatewayServicePort,
 									Protocol:      "TCP",
 								},
 							},
@@ -81,14 +153,14 @@ func NewGatewayDeployment(cr *gramolav1.AppService, name string, namespace strin
 										Path: "/api/events",
 										Port: intstr.IntOrString{
 											Type:   intstr.Int,
-											IntVal: int32(8080),
+											IntVal: GatewayServicePort,
 										},
 										Scheme: corev1.URISchemeHTTP,
 									},
 								},
-								FailureThreshold:    5,
-								InitialDelaySeconds: 60,
-								PeriodSeconds:       10,
+								FailureThreshold:    3,
+								InitialDelaySeconds: 25,
+								PeriodSeconds:       2,
 								SuccessThreshold:    1,
 								TimeoutSeconds:      1,
 							},
@@ -98,14 +170,14 @@ func NewGatewayDeployment(cr *gramolav1.AppService, name string, namespace strin
 										Path: "/api/events",
 										Port: intstr.IntOrString{
 											Type:   intstr.Int,
-											IntVal: int32(8080),
+											IntVal: GatewayServicePort,
 										},
 										Scheme: corev1.URISchemeHTTP,
 									},
 								},
 								FailureThreshold:    3,
-								InitialDelaySeconds: 120,
-								PeriodSeconds:       10,
+								InitialDelaySeconds: 27,
+								PeriodSeconds:       2,
 								SuccessThreshold:    1,
 								TimeoutSeconds:      1,
 							},
@@ -116,4 +188,78 @@ func NewGatewayDeployment(cr *gramolav1.AppService, name string, namespace strin
 			},
 		},
 	}
+
+	if err := controllerutil.SetControllerReference(instance, deployment, scheme); err != nil {
+		return nil, err
+	}
+
+	return deployment, nil
+}
+
+// NewGatewayService return a Service object given name, namespace, etc.
+func NewGatewayService(instance *gramolav1.AppService, scheme *runtime.Scheme) (*corev1.Service, error) {
+	labels := GetAppServiceLabels(instance, GatewayServiceName)
+
+	service := &corev1.Service{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Service",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      GatewayServiceName,
+			Namespace: instance.Namespace,
+			Labels:    labels,
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{
+					Name:     GatewayServicePortName,
+					Port:     GatewayServicePort,
+					Protocol: "TCP",
+				},
+			},
+			Selector: labels,
+		},
+	}
+
+	if err := controllerutil.SetControllerReference(instance, service, scheme); err != nil {
+		return nil, err
+	}
+
+	return service, nil
+}
+
+// NewGatewayRoute returns an OpenShift Route object
+func NewGatewayRoute(instance *gramolav1.AppService, scheme *runtime.Scheme) (*routev1.Route, error) {
+	labels := GetAppServiceLabels(instance, GatewayServiceName)
+	targetPort := intstr.IntOrString{
+		Type:   intstr.Int,
+		IntVal: int32(GatewayServicePort),
+	}
+	route := &routev1.Route{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Route",
+			APIVersion: routev1.SchemeGroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      GatewayServiceName,
+			Namespace: instance.Namespace,
+			Labels:    labels,
+		},
+		Spec: routev1.RouteSpec{
+			To: routev1.RouteTargetReference{
+				Kind: "Service",
+				Name: GatewayServiceName,
+			},
+			Port: &routev1.RoutePort{
+				TargetPort: targetPort,
+			},
+		},
+	}
+
+	if err := controllerutil.SetControllerReference(instance, route, scheme); err != nil {
+		return nil, err
+	}
+
+	return route, nil
 }

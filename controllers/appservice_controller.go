@@ -26,6 +26,7 @@ import (
 	"time"
 
 	gramolav1 "github.com/atarazana/gramola-operator/api/v1"
+	_deployment "github.com/atarazana/gramola-operator/deployment"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -82,7 +83,7 @@ type AppServiceReconciler struct {
 // +kubebuilder:rbac:groups=gramola.atarazana.com,resources=appservices,verbs=*
 // +kubebuilder:rbac:groups=gramola.atarazana.com,resources=appservices/finalizers,verbs=*
 // +kubebuilder:rbac:groups=gramola.atarazana.com,resources=appservices/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups="",resources=pods;pods/exec;services;services/finalizers;endpoints;persistentvolumeclaims;events;configmaps;secrets,verbs=create;delete;get;list;patch;update;watch
+// +kubebuilder:rbac:groups="",resources=pods;pods/exec;services;services/finalizers;endpoints;persistentvolumeclaims;events;configmaps;secrets;serviceaccounts,verbs=create;delete;get;list;patch;update;watch
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list
 // +kubebuilder:rbac:groups=apps,resources=deployments;deployments/finalizers;daemonsets;replicasets;statefulsets,verbs=create;delete;get;list;patch;update;watch
 // +kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;create
@@ -155,23 +156,32 @@ func (r *AppServiceReconciler) Reconcile(request ctrl.Request) (ctrl.Result, err
 	//////////////////////////
 	// Update Events DataBase
 	//////////////////////////
-	log.Info(fmt.Sprintf("Status before Database Update %s", instance.Status))
-	if !(instance.Status.EventsDatabaseUpdated == gramolav1.DatabaseUpdateStatusSucceeded) {
+	// Update only if not applied before with success
+	if !r.CurrentDatabaseScriptWasRun(instance) {
+		// TODO Backup DB
+
+		// Start the Script Run
+		scriptRun := &gramolav1.DatabaseScriptRun{
+			Script: _deployment.EventsDatabaseUpdateScriptName,
+			Status: gramolav1.DatabaseUpdateStatusUnknown,
+		}
 		if dataBaseUpdated, err := r.UpdateEventsDatabase(request); err != nil {
-			log.Error(err, "error DB update", "instance", instance)
+			log.Error(err, "Error DB update", "instance", instance)
 			// Update Status
+			scriptRun.Status = gramolav1.DatabaseUpdateStatusFailed
+			instance.Status.EventsDatabaseScriptRuns = append(instance.Status.EventsDatabaseScriptRuns, *scriptRun)
 			instance.Status.EventsDatabaseUpdated = gramolav1.DatabaseUpdateStatusFailed
 			return r.ManageError(instance, err)
 		} else {
 			if dataBaseUpdated {
 				log.Info(fmt.Sprintf("dataBaseUpdated ====> %s", instance.Status))
 				// Update Status
+				scriptRun.Status = gramolav1.DatabaseUpdateStatusSucceeded
+				instance.Status.EventsDatabaseScriptRuns = append(instance.Status.EventsDatabaseScriptRuns, *scriptRun)
 				instance.Status.EventsDatabaseUpdated = gramolav1.DatabaseUpdateStatusSucceeded
-				err := r.Client.Update(context.Background(), instance)
-				if err != nil {
-					log.Error(err, errorUnableToUpdateInstance, "instance", instance)
-					return r.ManageError(instance, err)
-				}
+			} else {
+				// Maybe the Database Pods weren't ready but running... so scchedule a new reconcile cycle
+				return r.ManageSuccess(instance, 10*time.Second, gramolav1.RequeueEvent)
 			}
 		}
 	}
@@ -192,7 +202,8 @@ func (r *AppServiceReconciler) isValid(obj metav1.Object) (bool, error) {
 	}
 
 	// Check Alias
-	if len(instance.Spec.Alias) > 0 && instance.Spec.Alias != "Gramola" && instance.Spec.Alias != "Gramophone" {
+	if len(instance.Spec.Alias) > 0 &&
+		instance.Spec.Alias != "Gramola" && instance.Spec.Alias != "Gramophone" && instance.Spec.Alias != "Phonograph" {
 		err := k8s_errors.NewBadRequest(errorAlias)
 		log.Error(err, errorAlias)
 		return false, err
@@ -342,7 +353,7 @@ func (r *AppServiceReconciler) UpdateEventsDatabase(request reconcile.Request) (
 	// List all pods of the Events Database
 	podList := &corev1.PodList{}
 	lbs := map[string]string{
-		"component": EventsDatabaseServiceName,
+		"component": _deployment.EventsDatabaseServiceName,
 	}
 	labelSelector := labels.SelectorFromSet(lbs)
 	listOps := &client.ListOptions{Namespace: request.Namespace, LabelSelector: labelSelector}
@@ -350,15 +361,13 @@ func (r *AppServiceReconciler) UpdateEventsDatabase(request reconcile.Request) (
 		return false, err
 	}
 
-	//log.Info(fmt.Sprintf("podList: %s", podList))
-
 	// Count the pods that are pending or running as available
 	var ready []corev1.Pod
 	for _, pod := range podList.Items {
-		log.Info(fmt.Sprintf("pod: %s phase: %s", pod.Name, pod.Status.Phase))
+		log.Info(fmt.Sprintf("pod: %s phase: %s statuses: %v", pod.Name, pod.Status.Phase, pod.Status.ContainerStatuses))
 		if pod.Status.Phase == corev1.PodRunning {
 			for _, containerStatus := range pod.Status.ContainerStatuses {
-				if containerStatus.Name == "postgresql" && containerStatus.Ready { // TODO constant for "postgresql"
+				if containerStatus.Name == _deployment.EventsDatabaseServiceContainerName && containerStatus.Ready {
 					ready = append(ready, pod)
 					break
 				}
@@ -366,15 +375,21 @@ func (r *AppServiceReconciler) UpdateEventsDatabase(request reconcile.Request) (
 		}
 	}
 
+	log.Info(fmt.Sprintf("ready: %v", ready))
+
 	if len(ready) > 0 {
-		filePath := DbScriptsMountPoint + "/" + DbUpdateScriptName
+		filePath := _deployment.EventsDatabaseScriptsMountPath + "/" + _deployment.EventsDatabaseUpdateScriptName
 		if _out, _err, err := r.ExecuteRemoteCommand(&ready[0], "psql -U $POSTGRESQL_USER $POSTGRESQL_DATABASE -f "+filePath); err != nil {
 			return false, err
 		} else {
 			log.Info(fmt.Sprintf("stdout: %s\nstderr: %s", _out, _err))
 			if len(_err) > 0 {
-				return false, errors.Wrapf(err, "Failed executing script %s on %s", filePath, EventsDatabaseServiceName)
+				return false, errors.Wrapf(err, "Failed executing script %s on %s", filePath, _deployment.EventsDatabaseServiceName)
 			} else {
+				errorFound := regexp.MustCompile(`(?i)error`)
+				if errorFound.MatchString(_out) {
+					return false, errors.Wrapf(err, "Failed executing script %s on %s", filePath, _deployment.EventsDatabaseServiceName)
+				}
 				return true, nil
 			}
 		}
@@ -426,6 +441,19 @@ func (r *AppServiceReconciler) ExecuteRemoteCommand(pod *corev1.Pod, command str
 	return buf.String(), errBuf.String(), nil
 }
 
+// CurrentDatabaseScriptWasRun checks if the current Database Update Script was run
+func (r *AppServiceReconciler) CurrentDatabaseScriptWasRun(instance *gramolav1.AppService) bool {
+	for i := range instance.Status.EventsDatabaseScriptRuns {
+		if instance.Status.EventsDatabaseScriptRuns[i].Script == _deployment.EventsDatabaseUpdateScriptName &&
+			instance.Status.EventsDatabaseScriptRuns[i].Status == gramolav1.DatabaseUpdateStatusSucceeded {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Predicate to manage all events as a composite predicate
 func appServicePredicateComposite() predicate.Predicate {
 	return predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
@@ -466,6 +494,7 @@ func appServicePredicateComposite() predicate.Predicate {
 	}
 }
 
+// Predicate to manage events from AppServices
 func appServicePredicate() predicate.Predicate {
 	return predicate.Funcs{
 		UpdateFunc: func(e event.UpdateEvent) bool {
@@ -512,6 +541,7 @@ func appServicePredicate() predicate.Predicate {
 	}
 }
 
+// Predicate to manage events from Pods
 func podPredicate() predicate.Predicate {
 	return predicate.Funcs{
 		UpdateFunc: func(e event.UpdateEvent) bool {

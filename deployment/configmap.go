@@ -24,3 +24,13 @@ func NewConfigMapFromData(cr *gramolav1.AppService, name string, namespace strin
 		Data: data,
 	}
 }
+
+// NewConfigMapPatchFromData returns a Patch given a ConfigMap and a KV map to add to th
+//func NewConfigMapPatchFromCurrentAndKVMap(current *corev1.ConfigMap, data map[string]string) *client.Patch {
+//	patch := client.MergeFrom(current.DeepCopy())
+//	for k, v := range data {
+//		current.Data[k] = v
+//	}
+//
+//	return &patch
+//}

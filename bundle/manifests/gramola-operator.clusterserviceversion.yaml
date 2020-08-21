@@ -25,10 +25,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     repository: https://github.com/atarazana/gramola-operator
     support: Atarazana Inc.
-    description: Install and maintain Gramola. Rock'n'Roll aint dead Lenny.
-    # TODO: Change everytime we generate a new bundle... or kustomize?
-    containerImage: 'quay.io/cvicens/gramola-operator-image:v0.0.1'
-  name: gramola-operator.v0.0.1
+  name: gramola-operator.v0.0.2
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -71,6 +68,7 @@ spec:
           - pods
           - pods/exec
           - secrets
+          - serviceaccounts
           - services
           - services/finalizers
           verbs:
@@ -175,7 +173,7 @@ spec:
                 - --enable-leader-election
                 command:
                 - /manager
-                image: quay.io/cvicens/gramola-operator-image:v0.0.1
+                image: quay.io/cvicens/gramola-operator-image:v0.0.2
                 name: manager
                 resources:
                   limits:
@@ -246,4 +244,5 @@ spec:
   provider:
     name: Atarazana Inc.
     url: https://es.wikipedia.org/wiki/Astillero_naval
-  version: 0.0.1
+  replaces: gramola-operator.v0.0.1
+  version: 0.0.2
