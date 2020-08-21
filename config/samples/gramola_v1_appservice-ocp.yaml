@@ -6,4 +6,4 @@ spec:
   # Add fields here
   enabled: true
   location: EMEA
-  domainName: minikube.local
+  platform: openshift

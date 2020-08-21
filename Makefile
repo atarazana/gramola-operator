@@ -179,3 +179,7 @@ bundle-catalog-undeploy:
 # Deploy Ingress on minikube
 deploy-ingress-minikube:
 	minikube addons enable ingress
+
+# Deploy olm
+deploy-olm:
+	operator-sdk olm install
