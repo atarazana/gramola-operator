@@ -160,6 +160,9 @@ bundle-push: bundle-build
 bundle-validate: bundle-push
 	operator-sdk bundle validate $(BUNDLE_IMG)
 
+# Do all bundle stuff
+bundle-all: bundle-build bundle-push bundle-validate
+
 # Bundle Index
 bundle-index-build:
 	opm -u docker index add --bundles $(BUNDLE_IMG) --tag $(BUNDLE_INDEX_IMG)

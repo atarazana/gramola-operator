@@ -4,9 +4,13 @@ metadata:
   annotations:
     alm-examples: '[]'
     capabilities: Basic Install
-    ategories: Other
+    categories: Other
+    certified: "false"
+    createdAt: "2020-08-21T00:00:00Z"
     operators.operatorframework.io/builder: operator-sdk-v1.0.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
+    repository: https://github.com/atarazana/gramola-operator
+    support: Atarazana Inc.
   name: gramola-operator.vX.Y.Z
   namespace: placeholder
 spec:
@@ -20,17 +24,17 @@ spec:
       version: v1
   description: |
     A sample social event management system (**Gramola**) built mostly with [Quarkus](https://quarkus.io).
-    
+
     [Gramola](https://en.wikipedia.org/wiki/Gramola) is a kind of gramophone or jukebox.
-    
+
     ### This is just a sample operator
-    
+
     This operator deploys an application made of several microservices. The code of the application is [here](https://github.com/cvicens/gramola). The code of the operator is [here](https://github.com/cvicens/gramola-operator)
-    
+
     ### Supported Features
-    
+
     **Updates via automated operations**
-    
+
     New versions are deployed using a rolling update with no downtime, making it easy to stay up to date.
   displayName: Gramola Operator
   icon:
