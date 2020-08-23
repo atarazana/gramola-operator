@@ -34,6 +34,7 @@ __debug_bin
 
 # Other
 .DS_Store
+downloaded/
 
 # Virtual Python Env
 venv/

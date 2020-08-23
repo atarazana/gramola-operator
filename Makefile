@@ -16,6 +16,7 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 # Bundle Index tag
 BUNDLE_INDEX_IMG ?= quay.io/$(USERNAME)/$(OPERATOR_NAME)-index:v$(VERSION)
+FROM_BUNDLE_INDEX_IMG ?= quay.io/$(USERNAME)/$(OPERATOR_NAME)-index:v$(FROM_VERSION)
 
 # Image URL to use all building/pushing image targets
 #IMG ?= controller:latest
@@ -164,25 +165,40 @@ bundle-validate: bundle-push
 bundle-all: bundle-build bundle-push bundle-validate
 
 # Bundle Index
-bundle-index-build:
+index-build:
+ifneq (,$(shell go env FROM_VERSION))
+	echo "FROM_VERSION ${FROM_VERSION}"
 	opm -u docker index add --bundles $(BUNDLE_IMG) --tag $(BUNDLE_INDEX_IMG)
-
-bundle-index-push: bundle-index-build
+else
+	opm -u docker index add --bundles $(BUNDLE_IMG) --from-index $(FROM_BUNDLE_INDEX_IMG) --tag $(BUNDLE_INDEX_IMG)
+endif
+	
+index-push: index-build
 	docker push $(BUNDLE_INDEX_IMG)
 
-bundle-index-from:
-	opm -u docker index add --bundles $(BUNDLE_IMG) --from-index quay.io/my-container-registry-namespace/my-index:1.0.0 --tag quay.io/my-container-registry-namespace/my-index:1.0.1
+# Catalog
+catalog-deploy:
+	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -f -
 
-bundle-catalog-deploy:
-	$(KUSTOMIZE) build config/catalog | kubectl apply -f -
+catalog-undeploy:
+	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -f -
 
-bundle-catalog-undeploy:
-	$(KUSTOMIZE) build config/catalog | kubectl delete -f -
+catalog-deploy-prev:
+	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -f -
 
-# Deploy Ingress on minikube
-deploy-ingress-minikube:
+catalog-undeploy-prev:
+	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -f -
+
+# Ingress on minikube
+ingress-minikube-deploy:
 	minikube addons enable ingress
 
-# Deploy olm
-deploy-olm:
+ingress-minikube-undeploy:
+	minikube addons disable ingress
+
+# Operator Lifecycle Manager OLM
+olm-deploy:
 	operator-sdk olm install
+
+olm-undeploy:
+	operator-sdk olm uninstall

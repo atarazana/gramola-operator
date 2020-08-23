@@ -12,4 +12,5 @@ export PROJECT_NAME=${OPERATOR_NAME}-system
 
 export USERNAME=cvicens
 
+export FROM_VERSION=0.0.1
 export VERSION=0.0.2

@@ -1,10 +1,10 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
-  name: catalog
+  name: atarazana-catalog
   namespace: olm
 spec:
   displayName: Atarazana Operators
   publisher: Atarazana Inc.
   sourceType: grpc
-  image: quay.io/cvicens/gramola-operator-index:v0.0.1
+  image: BUNDLE_INDEX_IMG

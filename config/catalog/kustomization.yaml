@@ -1,9 +1,0 @@
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-namespace: olm
-
-namePrefix: gramola-operator-
-
-resources:
-- catalog-source.yaml

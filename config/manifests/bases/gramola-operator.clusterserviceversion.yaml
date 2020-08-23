@@ -3,10 +3,11 @@ kind: ClusterServiceVersion
 metadata:
   annotations:
     alm-examples: '[]'
-    capabilities: Basic Install
+    capabilities: Seamless Upgrades
     categories: Other
     certified: "false"
     createdAt: "2020-08-21T00:00:00Z"
+    description: Install and maintain Gramola. Rock'n'Roll aint dead Lenny.
     operators.operatorframework.io/builder: operator-sdk-v1.0.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
     repository: https://github.com/atarazana/gramola-operator
