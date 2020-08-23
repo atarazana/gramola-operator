@@ -157,7 +157,8 @@ func NewEventsDatabaseCredentialsSecretPatch(current *corev1.Secret) client.Patc
 func NewEventsDatabaseDeploymentPatch(current *appsv1.Deployment) client.Patch {
 	patch := client.MergeFrom(current.DeepCopy())
 
-	current.Labels["version"] = version.Version
+	// Nothing to be changed, we could add version label but that would restart the DB
+	// current.Labels["version"] = version.Version
 
 	return patch
 }

@@ -173,16 +173,18 @@ func (r *AppServiceReconciler) Reconcile(request ctrl.Request) (ctrl.Result, err
 			instance.Status.EventsDatabaseUpdated = gramolav1.DatabaseUpdateStatusFailed
 			return r.ManageError(instance, err)
 		} else {
-			if dataBaseUpdated {
-				log.Info(fmt.Sprintf("dataBaseUpdated ====> %s", instance.Status))
-				// Update Status
-				scriptRun.Status = gramolav1.DatabaseUpdateStatusSucceeded
-				instance.Status.EventsDatabaseScriptRuns = append(instance.Status.EventsDatabaseScriptRuns, *scriptRun)
-				instance.Status.EventsDatabaseUpdated = gramolav1.DatabaseUpdateStatusSucceeded
-			} else {
+			if !dataBaseUpdated {
 				// Maybe the Database Pods weren't ready but running... so scchedule a new reconcile cycle
+				log.Info(fmt.Sprintf("Requeueing event as wwe couldn't update the events database"))
 				return r.ManageSuccess(instance, 10*time.Second, gramolav1.RequeueEvent)
 			}
+
+			// Update Status
+			scriptRun.Status = gramolav1.DatabaseUpdateStatusSucceeded
+			instance.Status.EventsDatabaseScriptRuns = append(instance.Status.EventsDatabaseScriptRuns, *scriptRun)
+			instance.Status.EventsDatabaseUpdated = gramolav1.DatabaseUpdateStatusSucceeded
+
+			log.Info(fmt.Sprintf("Database UpdateStatus Succeeded ====> %s", instance.Status))
 		}
 	}
 
@@ -384,7 +386,7 @@ func (r *AppServiceReconciler) UpdateEventsDatabase(request reconcile.Request) (
 		} else {
 			log.Info(fmt.Sprintf("stdout: %s\nstderr: %s", _out, _err))
 			if len(_err) > 0 {
-				return false, errors.Wrapf(err, "Failed executing script %s on %s", filePath, _deployment.EventsDatabaseServiceName)
+				return false, errors.Wrapf(err, "Failed before executing script %s on %s", filePath, _deployment.EventsDatabaseServiceName)
 			} else {
 				errorFound := regexp.MustCompile(`(?i)error`)
 				if errorFound.MatchString(_out) {
