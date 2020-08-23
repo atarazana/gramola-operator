@@ -5,6 +5,7 @@ include settings.sh
 # Default bundle image tag
 #BUNDLE_IMG ?= controller-bundle:$(VERSION)
 BUNDLE_IMG ?= quay.io/$(USERNAME)/$(OPERATOR_NAME)-bundle:v$(VERSION)
+FROM_BUNDLE_IMG ?= quay.io/$(USERNAME)/$(OPERATOR_NAME)-bundle:v$(FROM_VERSION)
 # Options for 'bundle-build'
 ifneq ($(origin CHANNELS), undefined)
 BUNDLE_CHANNELS := --channels=$(CHANNELS)
@@ -165,6 +166,7 @@ bundle-validate: bundle-push
 bundle-all: bundle-build bundle-push bundle-validate
 
 # Bundle Index
+# Build bundle by referring to the previous version if FROM_VERSION is defined
 index-build:
 ifneq (,$(shell go env FROM_VERSION))
 	echo "FROM_VERSION ${FROM_VERSION}"
@@ -173,19 +175,29 @@ else
 	opm -u docker index add --bundles $(BUNDLE_IMG) --from-index $(FROM_BUNDLE_INDEX_IMG) --tag $(BUNDLE_INDEX_IMG)
 endif
 	
+# Push the index
 index-push: index-build
 	docker push $(BUNDLE_INDEX_IMG)
+
+# [DEBUGGING] Export the index (pulls image) to download folder
+index-export:
+	opm index export --index="$(BUNDLE_INDEX_IMG)" --package="$(OPERATOR_NAME)"
+
+# [DEBUGGING] Create a test sqlite db and serves it
+index-registry-serve:
+	opm registry add -b $(FROM_BUNDLE_IMG) -d "test-registry.db"
+	opm registry add -b $(BUNDLE_IMG) -d "test-registry.db"
+	opm registry serve -d "test-registry.db" -p 50051
 
 # Catalog
 catalog-deploy:
 	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -f -
-
 catalog-undeploy:
 	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -f -
 
+# [DEMO] Deploy previous index to then upgrade!
 catalog-deploy-prev:
 	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -f -
-
 catalog-undeploy-prev:
 	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -f -
 
