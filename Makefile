@@ -19,6 +19,9 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 BUNDLE_INDEX_IMG ?= quay.io/$(USERNAME)/$(OPERATOR_NAME)-index:v$(VERSION)
 FROM_BUNDLE_INDEX_IMG ?= quay.io/$(USERNAME)/$(OPERATOR_NAME)-index:v$(FROM_VERSION)
 
+# Catalog default namespace
+CATALOG_NAMESPACE?=olm
+
 # Image URL to use all building/pushing image targets
 #IMG ?= controller:latest
 IMG ?= quay.io/$(USERNAME)/$(OPERATOR_IMAGE):v$(VERSION)
@@ -168,10 +171,10 @@ bundle-all: bundle-build bundle-push bundle-validate
 # Bundle Index
 # Build bundle by referring to the previous version if FROM_VERSION is defined
 index-build:
-ifneq (,$(shell go env FROM_VERSION))
-	echo "FROM_VERSION ${FROM_VERSION}"
+ifndef $(FROM_VERSION))
 	opm -u docker index add --bundles $(BUNDLE_IMG) --tag $(BUNDLE_INDEX_IMG)
 else
+	echo "FROM_VERSION ${FROM_VERSION}"
 	opm -u docker index add --bundles $(BUNDLE_IMG) --from-index $(FROM_BUNDLE_INDEX_IMG) --tag $(BUNDLE_INDEX_IMG)
 endif
 	
@@ -189,17 +192,25 @@ index-registry-serve:
 	opm registry add -b $(BUNDLE_IMG) -d "test-registry.db"
 	opm registry serve -d "test-registry.db" -p 50051
 
-# Catalog
-catalog-deploy:
-	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -f -
-catalog-undeploy:
-	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -f -
+# [DEMO] Deploy previous index then create a sample subscription then deploy current index
+catalog-deploy-prev: # 1. Install Catalog version 0.0.1
+	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -n $(CATALOG_NAMESPACE) -f -
 
-# [DEMO] Deploy previous index to then upgrade!
-catalog-deploy-prev:
-	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -f -
-catalog-undeploy-prev:
-	sed "s|BUNDLE_INDEX_IMG|$(FROM_BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -f -
+install-operator:    # 2. Install Operator => Create AppService and create sample data
+	kubectl operator install $(OPERATOR_NAME) --create-operator-group -v v$(FROM_VERSION)
+	kubectl operator list
+
+catalog-deploy:      # 3. Upgrade Catalog to version 0.0.2
+	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl apply -n $(CATALOG_NAMESPACE) -f -
+
+upgrade-operator:    # 4. Upgrade Operator, since it's manual this step approves the install plan. Notice schema upgraded and data migrated!
+	kubectl operator upgrade $(OPERATOR_NAME)
+
+uninstall-operator:  # 5. Clean 1. Unistall Operator and delete AppService object
+	kubectl operator uninstall $(OPERATOR_NAME) --delete-operator-groups
+
+catalog-undeploy:    # 6. Clean 2. Delete Catalog
+	sed "s|BUNDLE_INDEX_IMG|$(BUNDLE_INDEX_IMG)|" ./config/catalog/catalog-source.yaml | kubectl delete -n $(CATALOG_NAMESPACE) -f -
 
 # Ingress on minikube
 ingress-minikube-deploy:
@@ -214,3 +225,16 @@ olm-deploy:
 
 olm-undeploy:
 	operator-sdk olm uninstall
+
+# Alternative Operator installation (in progress)
+CURRENT_CONTEXT := $(shell kubectl config current-context)
+CURRENT_NAMESPACE := $(shell kubectl config view -o jsonpath="{.contexts[?(@.name=='$(CURRENT_CONTEXT)')].context.namespace}")
+install-subscription:
+	sed "s|TARGET_NAMESPACE|$(CURRENT_NAMESPACE)|" ./config/catalog/operator-group.yaml | kubectl apply -f -
+	sed "s|STARTING_CSV|$(OPERATOR_NAME)v$(FROM_VERSION)|" ./config/catalog/subscription.yaml | kubectl apply -f -
+	sed "s|STARTING_CSV|$(OPERATOR_NAME)v$(FROM_VERSION)|" ./config/catalog/install-plan.yaml | kubectl apply -f -
+
+uninstall-subscription:
+	sed "s|TARGET_NAMESPACE|$(CURRENT_NAMESPACE)|" ./config/catalog/operator-group.yaml | kubectl delete -f -
+	sed "s|STARTING_CSV|$(OPERATOR_NAME)v$(FROM_VERSION)|" ./config/catalog/subscription.yaml | kubectl delete -f -
+	sed "s|STARTING_CSV|$(OPERATOR_NAME)v$(FROM_VERSION)|" ./config/catalog/install-plan.yaml | kubectl apply -f -
