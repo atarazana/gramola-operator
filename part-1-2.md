@@ -31,57 +31,57 @@ We're moving from:
 
 ```go
     } else if err != nil {
-		log.Error(err, "Failed to get Deployment")
-		return ctrl.Result{}, err
-	}
+        log.Error(err, "Failed to get Deployment")
+        return ctrl.Result{}, err
+    }
 ```
 
 to:
 
 ```go
     } else if err == nil {
-		from := &appsv1.Deployment{}
-		if err = r.Client.Get(context.TODO(), types.NamespacedName{Name: appservice.Name, Namespace: appservice.Namespace}, from); err == nil {
-			patch := r.deploymentForAppServicePatch(from)
-			if err := r.Client.Patch(context.TODO(), from, patch); err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-	} else {
-		log.Error(err, "Failed to get Deployment")
-		return ctrl.Result{}, err
-	}
+        from := &appsv1.Deployment{}
+        if err = r.Client.Get(context.TODO(), types.NamespacedName{Name: appservice.Name, Namespace: appservice.Namespace}, from); err == nil {
+            patch := r.deploymentForAppServicePatch(from)
+            if err := r.Client.Patch(context.TODO(), from, patch); err != nil {
+                return ctrl.Result{}, err
+            }
+        }
+    } else {
+        log.Error(err, "Failed to get Deployment")
+        return ctrl.Result{}, err
+    }
 ```
 
 This should be the result.
 
 ```go
     // Check if the deployment already exists, if not create a new one
-	found := &appsv1.Deployment{}
-	err = r.Get(ctx, types.NamespacedName{Name: appservice.Name, Namespace: appservice.Namespace}, found)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new deployment
-		dep := r.deploymentForAppService(appservice)
-		log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
-		err = r.Create(ctx, dep)
-		if err != nil {
-			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
-			return ctrl.Result{}, err
-		}
-		// Deployment created successfully - return and requeue
-		return ctrl.Result{Requeue: true}, nil
-	} else if err == nil {
-		from := &appsv1.Deployment{}
-		if err = r.Client.Get(context.TODO(), types.NamespacedName{Name: appservice.Name, Namespace: appservice.Namespace}, from); err == nil {
-			patch := r.deploymentForAppServicePatch(from)
-			if err := r.Client.Patch(context.TODO(), from, patch); err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-	} else {
-		log.Error(err, "Failed to get Deployment")
-		return ctrl.Result{}, err
-	}
+    found := &appsv1.Deployment{}
+    err = r.Get(ctx, types.NamespacedName{Name: appservice.Name, Namespace: appservice.Namespace}, found)
+    if err != nil && errors.IsNotFound(err) {
+        // Define a new deployment
+        dep := r.deploymentForAppService(appservice)
+        log.Info("Creating a new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+        err = r.Create(ctx, dep)
+        if err != nil {
+            log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
+            return ctrl.Result{}, err
+        }
+        // Deployment created successfully - return and requeue
+        return ctrl.Result{Requeue: true}, nil
+    } else if err == nil {
+        from := &appsv1.Deployment{}
+        if err = r.Client.Get(context.TODO(), types.NamespacedName{Name: appservice.Name, Namespace: appservice.Namespace}, from); err == nil {
+            patch := r.deploymentForAppServicePatch(from)
+            if err := r.Client.Patch(context.TODO(), from, patch); err != nil {
+                return ctrl.Result{}, err
+            }
+        }
+    } else {
+        log.Error(err, "Failed to get Deployment")
+        return ctrl.Result{}, err
+    }
 ```
 
 Now let's change function `deploymentForAppService` for this, please find it and replace it with:
@@ -91,50 +91,50 @@ Now let's change function `deploymentForAppService` for this, please find it and
 ```go
 // deploymentForAppService returns a appservice Deployment object
 func (r *AppServiceReconciler) deploymentForAppService(m *gramophonev1.AppService) *appsv1.Deployment {
-	ls := labelsForAppService(m.Name)
-	replicas := m.Spec.Size
+    ls := labelsForAppService(m.Name)
+    replicas := m.Spec.Size
 
-	dep := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      m.Name,
-			Namespace: m.Namespace,
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: &replicas,
-			Selector: &metav1.LabelSelector{
-				MatchLabels: ls,
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: ls,
-				},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Image:   "memcached:1.4.36-alpine",
-							Name:    "memcached",
-							Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
-							Ports: []corev1.ContainerPort{{
-								ContainerPort: 11211,
-								Name:          "memcached",
-							}},
-						},
-						{
-							Image: "quay.io/prometheus/memcached-exporter:v0.7.0",
-							Name:  "exporter",
-							Ports: []corev1.ContainerPort{{
-								ContainerPort: 9150,
-								Name:          "exporter",
-							}},
-						},
-					},
-				},
-			},
-		},
-	}
-	// Set AppService instance as the owner and controller
-	ctrl.SetControllerReference(m, dep, r.Scheme)
-	return dep
+    dep := &appsv1.Deployment{
+        ObjectMeta: metav1.ObjectMeta{
+            Name:      m.Name,
+            Namespace: m.Namespace,
+        },
+        Spec: appsv1.DeploymentSpec{
+            Replicas: &replicas,
+            Selector: &metav1.LabelSelector{
+                MatchLabels: ls,
+            },
+            Template: corev1.PodTemplateSpec{
+                ObjectMeta: metav1.ObjectMeta{
+                    Labels: ls,
+                },
+                Spec: corev1.PodSpec{
+                    Containers: []corev1.Container{
+                        {
+                            Image:   "memcached:1.4.36-alpine",
+                            Name:    "memcached",
+                            Command: []string{"memcached", "-m=64", "-o", "modern", "-v"},
+                            Ports: []corev1.ContainerPort{{
+                                ContainerPort: 11211,
+                                Name:          "memcached",
+                            }},
+                        },
+                        {
+                            Image: "quay.io/prometheus/memcached-exporter:v0.7.0",
+                            Name:  "exporter",
+                            Ports: []corev1.ContainerPort{{
+                                ContainerPort: 9150,
+                                Name:          "exporter",
+                            }},
+                        },
+                    },
+                },
+            },
+        },
+    }
+    // Set AppService instance as the owner and controller
+    ctrl.SetControllerReference(m, dep, r.Scheme)
+    return dep
 }
 ```
 
@@ -143,43 +143,43 @@ And create a new function `deploymentForAppServicePatch` after `deploymentForApp
 ```go
 // deploymentForAppServicePatch returns a Patch
 func (r *AppServiceReconciler) deploymentForAppServicePatch(current *appsv1.Deployment) client.Patch {
-	patch := client.MergeFrom(current.DeepCopy())
+    patch := client.MergeFrom(current.DeepCopy())
 
-	if len(current.Labels) <= 0 {
-		current.Labels = map[string]string{
-			"exporter":     "true",
-			"exporterPort": "9150",
-		}
-	} else {
-		current.Labels["exporter"] = "true"
-		current.Labels["exporterPort"] = "9150"
-	}
+    if len(current.Labels) <= 0 {
+        current.Labels = map[string]string{
+            "exporter":     "true",
+            "exporterPort": "9150",
+        }
+    } else {
+        current.Labels["exporter"] = "true"
+        current.Labels["exporterPort"] = "9150"
+    }
 
-	memcachedExporterContainer := corev1.Container{
-		Image: "quay.io/prometheus/memcached-exporter:v0.7.0",
-		Name:  "exporter",
-		Ports: []corev1.ContainerPort{{
-			ContainerPort: 9150,
-			Name:          "exporter",
-		}},
-	}
+    memcachedExporterContainer := corev1.Container{
+        Image: "quay.io/prometheus/memcached-exporter:v0.7.0",
+        Name:  "exporter",
+        Ports: []corev1.ContainerPort{{
+            ContainerPort: 9150,
+            Name:          "exporter",
+        }},
+    }
 
-	// Add container
-	if len(current.Spec.Template.Spec.Containers) > 0 {
-		foundContainerIndex := -1
-		for i, container := range current.Spec.Template.Spec.Containers {
-			if container.Name == "exporter" {
-				foundContainerIndex = i
-			}
-		}
-		if foundContainerIndex != -1 {
-			current.Spec.Template.Spec.Containers[foundContainerIndex] = memcachedExporterContainer
-		} else {
-			current.Spec.Template.Spec.Containers = append(current.Spec.Template.Spec.Containers, memcachedExporterContainer)
-		}
-	}
+    // Add container
+    if len(current.Spec.Template.Spec.Containers) > 0 {
+        foundContainerIndex := -1
+        for i, container := range current.Spec.Template.Spec.Containers {
+            if container.Name == "exporter" {
+                foundContainerIndex = i
+            }
+        }
+        if foundContainerIndex != -1 {
+            current.Spec.Template.Spec.Containers[foundContainerIndex] = memcachedExporterContainer
+        } else {
+            current.Spec.Template.Spec.Containers = append(current.Spec.Template.Spec.Containers, memcachedExporterContainer)
+        }
+    }
 
-	return patch
+    return patch
 }
 ```
 
