@@ -529,6 +529,8 @@ $ kubectl operator upgrade $OPERATOR_NAME -n operator-tests
 operator "gramophone-operator" upgraded; installed csv is "gramophone-operator.v0.0.2"
 ```
 
+## Final tests
+
 Finally let's check the result. And yes... there it is the second container!
 
 ```sh
@@ -539,35 +541,8 @@ appservice-sample-6d88cb67b6-xxsgx                        2/2     Running   0   
 gramophone-operator-controller-manager-75c9f846b8-pqlkv   2/2     Running   0          31s
 ```
 
+You made it.
 
+## Final thoughts
 
-
-
-
-
-```sh
-minikube start \
-    --driver=hyperkit \
-    --memory 5120 \
-    --cpus 2 \
-    --network-plugin=cni \
-    --enable-default-cni \
-    --container-runtime=cri-o \
-    --bootstrapper=kubeadm
-```
-
-minikube addons enable ingress
-
-git clone operator-registry
-
-minikube ssh
-$ sudo crictl img | grep gramola
-
-k port-forward gramola-operator-catalog-dt7d6 50051
-
-grpcurl -plaintext -d '{"pkgName":"gramola-operator","channelName":"alpha"}' localhost:50051 api.Registry/GetBundleForChannel
-
-
-git clone https://github.com/operator-framework/operator-lifecycle-manager
-cd operator-lifecycle-manager
-make run-console-local
+This is just an example that tries fo cover a lot of land... I think it should be enough to start enjoying the Operator Framework. There's still a lot to learn so stay in touch!
