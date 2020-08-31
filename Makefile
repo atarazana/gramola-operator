@@ -170,8 +170,11 @@ bundle-all: bundle-build bundle-push bundle-validate
 
 # Bundle Index
 # Build bundle by referring to the previous version if FROM_VERSION is defined
+ifndef FROM_VERSION
+  CREATE_BUNDLE_INDEX  := true
+endif
 index-build:
-ifndef $(FROM_VERSION))
+ifeq ($(CREATE_BUNDLE_INDEX),true)
 	opm -u docker index add --bundles $(BUNDLE_IMG) --tag $(BUNDLE_INDEX_IMG)
 else
 	echo "FROM_VERSION ${FROM_VERSION}"
