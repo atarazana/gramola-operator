@@ -34,7 +34,7 @@ In [Part One](./part-1-1.md) you'll learn:
 
 > **NOTE:** In order to make the whole example easier (Gramola is not complicated but it has too many moving parts) we're going to use the [Golang Based Operator Tutorial](https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/) as base for this lab.
 
-The [2nd part](./part-1-2.md) of the guide explains how to run a complete demonstration using the Gramola operator, no need to code just enjoy deploying and upgrading Gramola.
+The [2nd part](./part-2-1.md) of the guide explains how to run a complete demonstration using the Gramola operator, no need to code just enjoy deploying and upgrading Gramola.
 
 <span style="color:red; font-weight: bold;">How is this guide different to others?</span>
 
