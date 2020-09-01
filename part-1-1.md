@@ -14,7 +14,7 @@ You need basic understanding of what an operator is to follow this guide. Additi
 * [Go](https://golang.org/dl) 1.13.5+
 * [Operator SDK](https://sdk.operatorframework.io/build/) v1.0.0+
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl) 1.14.8+
-* Access to a OCI compliant image registry, I'll be using [quay.io](https://quay.io), although other registries should work as well.
+* Access to an OCI compliant image registry where you can push images, I'll be using [quay.io](https://quay.io), other registries should work as well.
 * Kubernetes/OpenShift Cluster (where you have administrative permissions) or use [Minikube](https://minikube.sigs.k8s.io/docs/start/) as we're going to do most of the time in this guide.
 
 Quick access to install the Operator SDK [here](https://sdk.operatorframework.io/docs/installation/install-operator-sdk/)
@@ -44,7 +44,7 @@ $ curl -LO https://github.com/operator-framework/operator-sdk/releases/download/
 $ curl -LO https://github.com/operator-framework/operator-sdk/releases/download/${RELEASE_VERSION}/operator-sdk-${RELEASE_VERSION}-x86_64-apple-darwin && mv operator-sdk-${RELEASE_VERSION}-x86_64-apple-darwin ~/operators/bin/operator-sdk && chmod u+x ~/operators/bin/operator-sdk
 ```
 
-installing kubectl if not done already.
+Install kubectl if not done already.
 
 ```sh
 # Linux
@@ -1264,6 +1264,8 @@ From the documentation [here](https://github.com/operator-framework/operator-reg
 > 2. To make your bundle available, **you can add the bundle to a container image which the CatalogSource points to**. 
 > 3. **This image contains a database of pointers to bundle images** that OLM can pull and extract the manifests from in order to install an operator. 
 
+![OLM Registry](./images/olm-diagram-1.svg)
+
 To make your operator available to OLM, you can generate an index image via `opm` with your bundle reference included. For example:
 
 > **NOTE:** We'll install `opm` later don't freak out.
@@ -1280,7 +1282,7 @@ opm index add --bundles quay.io/my-container-registry-namespace/my-manifest-bund
 opm index add --bundles quay.io/my-container-registry-namespace/my-manifest-bundle:0.0.2 --from-index quay.io/my-container-registry-namespace/my-index:1.0.0 --tag quay.io/my-container-registry-namespace/my-index:1.0.1
 ```
 
-Apparently we need `opm` to generate and update images (and the sqlite databases underneath). Let's install it. In a new terminal.
+So, it turns out that we need [`opm`](https://github.com/operator-framework/operator-registry#building-an-index-of-operators-using-opm) to generate and update images (and the sqlite databases underneath). Let's install it. In a new terminal.
 
 ```sh
 mkdir -p ~/operators/tools
@@ -1443,7 +1445,7 @@ $ kubectl get pod --all-namespaces | grep $ORGANIZATION
 olm           atarazana-catalog-zhnbh            1/1     Running   0          8m11s
 ```
 
-**OPTIONAL**: You need `grpcurl` or other GRPC client for this tests
+**OPTIONAL**: You need [`grpcurl`](https://github.com/fullstorydev/grpcurl#installation) or other GRPC client for this tests
 
 Now with the pod name let's forward port 50051 to localhost:50051.
 
@@ -1488,9 +1490,8 @@ $ grpcurl -plaintext -d '{"pkgName":"gramophone-operator","channelName":"alpha"}
 
 ## Let's install our operator
 
-In order to install the operator you can choose to:
+In order to install the operator you can choose between:
 
-* do it manually
 * using kubectl-operator plugin
 * using OLM console
 
