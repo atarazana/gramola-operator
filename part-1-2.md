@@ -1,6 +1,6 @@
 # Step Two: Evolving the operator
 
-I hope you enjoyed your coffee... BTW, imagine it took you a couple of weeks and now you've decided to improve your operator by injecting a [sidecar](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/#example-1-sidecar-containers) container that exposes Memcached server metrics to Prometheus on port `9150`.
+I hope you enjoyed your coffee... Now, imagine it took you a couple of weeks and now you've decided to improve your operator by injecting a [sidecar](https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/#example-1-sidecar-containers) container that exposes Memcached server metrics to Prometheus on port `9150`.
 
 We're going to use [this](https://github.com/prometheus/memcached_exporter) Promtheus exporter. Let's get started.
 

@@ -1,4 +1,4 @@
-# Part One
+# Part One: Create and Upgrade and Operator using [OLM](https://github.com/operator-framework/operator-lifecycle-manager)
 
 Part One is devoted to create an operator from scratch deploy it and upgrade it using the [Operator Lifecycle Manager](https://github.com/operator-framework/operator-lifecycle-manager).
 
@@ -9,7 +9,7 @@ We've divided this part into two steps:
 
 ## Prerequisites
 
-You need basic understanding of what an operator is to follow this guide. Additionally if you want to run the demo or create your own Operator you also need:
+It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally if you want to run the demo or create your own Operator you also need:
 
 * [Go](https://golang.org/dl) 1.13.5+
 * [Operator SDK](https://sdk.operatorframework.io/build/) v1.0.0+
@@ -25,7 +25,7 @@ For the lazy ones as myself...
 mkdir -p ~/operators/bin
 ```
 
-Either (BTW, I prefer the other one... but I had to say it):
+Either:
 
 ```sh
 brew install operator-sdk

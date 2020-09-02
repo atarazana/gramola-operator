@@ -1,10 +1,12 @@
-# Part Two
+# Part Two: Deploy and Upgrade Gramola using [OLM](https://github.com/operator-framework/operator-lifecycle-manager) on kubernetes
 
 Part Two is way easier and doesn't involve coding. If you skipped part one because you don't know if you want to spend the time it takes until you have a deeper understanding and how it all works you're at the right place.
 
-Here we will install and upgrade the Gramola Operator, an operator in charge of installing and upgrading an application that involves data. In general for demos you see operators that usually install a system and that's it. Not the case, Gramola, although it is a super-simple musical events system as explained before, stores events in a PostgreSQL database, more over there's a change in the schema from version 0.0.1 to version 0.0.2 so the operator not only cares about intalling the components it also cares about updating the dabase schema if needed and migrating data if the schema suffered any changes. All this makes this demontration, at least so I think, more interesting than the usual.
+Here we will install and upgrade the Gramola Operator, an operator in charge of installing and upgrading an application that involves data (*that changes its schema over time
 
-We've divided this part into two steps:
+In general you see demos of operators that install a given system and that's it. This is not the case, Gramola, although it is a super-simple musical events system as explained before, stores events in a PostgreSQL database, more over, a change in the database schema is introduced in version 0.0.2 so the operator not only cares about installing the components (Deployments, ConfigMaps, Secrets, etc.) it also cares about updating the images of the different Deployments and, drum roll, upgrading the database schema if needed and migrating data if the schema suffered any changes. All this makes this demonstration, at least so I think, more interesting than the usual demo.
+
+We've divided this demo into:
 
 1. Install the CatalogSource and deploy version 0.0.1
 2. Generate some data
@@ -12,7 +14,7 @@ We've divided this part into two steps:
 
 # Prerequisites
 
-You need basic understanding of what an operator is to follow this guide. Additionally if you want to run the demo you also need:
+It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement.. Additionally if you want to run the demo you also need:
 
 * [Go](https://golang.org/dl) 1.13.5+
 * [Operator SDK](https://sdk.operatorframework.io/build/) v1.0.0+
@@ -28,7 +30,7 @@ For the lazy ones as myself...
 mkdir -p ~/operators/bin
 ```
 
-Either (BTW, I prefer the other one... but I had to say it):
+Either:
 
 ```sh
 brew install operator-sdk
@@ -191,7 +193,7 @@ Please note there are a coouple or operators we're insterested on:
 
 ## Enabling/Installing NGINX Ingress Controller
 
-In my case, `minikube`, instead of [installing the NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/), I'm going to enable it.
+In this guide, because we're using `minikube`, instead of [installing the NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/) using helm or other means, we're going to just `enable` it.
 
 ```sh
 $ minikube addons enable ingress
@@ -293,10 +295,11 @@ $ grpcurl -plaintext -d '{"pkgName":"gramola-operator","channelName":"alpha"}' l
 
 In order to manage an operator you can choose between:
 
-* using kubectl-operator plugin
+* using `kubectl-operator` plugin
 * using OLM console
+* [using OLM console on OpenShift](./part-2-2.md)
 
-## Using [kubectl-operator](https://github.com/operator-framework/kubectl-operator)
+## Using [kubectl-operator](https://github.com/operator-framework/kubectl-operator) plugin
 Here we're going to use `kubectl-operator`. So the first step is installing it. In a new terminal:
 
 ```sh
@@ -613,7 +616,7 @@ Click on the new category, then on the Gramola Operator. Once there, click on In
 
 ![Other Category](./images/olm-gramola-operator.png)
 
-Make sure all this is selected:
+Make sure all this is selected, then click on `Install`:
 
 * Installation Mode: `A specific namespace in the cluster`
 * Installed Namespace: `gramola-operator-system`
