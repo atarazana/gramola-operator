@@ -213,7 +213,7 @@ appservice-sample-bf69d6cdf-rk4v5   1/1     Running   1          2d20h
 appservice-sample-bf69d6cdf-znj4w   1/1     Running   1          2d20h
 ```
 
-Now let's run our operator code locally. Remember the deployment our operator created is alreade there... so our code should be patching.
+Now let's run our operator code locally. Remember the deployment our operator created is already there... so our code should be patching.
 
 > TIP: In another terminal run `watch kubectl get pod -n operator-tests` to see the changes live.
 
@@ -350,7 +350,7 @@ quay.io/cvicens/gramophone-operator-image:v0.0.2
 
 Now let's create a sample AppService:
 
-> **NOTE:** This test is different from the one we run when we run the code locally... because there's no previous AppService and hence there's nopreviousd Memcached deployment to update
+> **NOTE:** This test is different from the one we did when we run the code locally because there's no previous AppService and hence there's no previous Memcached deployment to update.
 
 ```sh
 $ kubectl apply -n $PROJECT_NAME -f ./config/samples/gramophone_v1_appservice.yaml 
@@ -383,7 +383,7 @@ promhttp_metric_handler_requests_total{code="500"} 0
 promhttp_metric_handler_requests_total{code="503"} 0
 ```
 
-Great... now we now the code works starting from an existing AppService... and also that the operator works from scartch with no previous AppService.
+Great... now we now the code works starting from an existing AppService... and also that the operator works from scratch with no previous AppService.
 
 
 Next stop, create the bundle for the current version (0.0.2).
@@ -543,4 +543,4 @@ You made it.
 
 ## Final thoughts
 
-This is just an example that tries fo cover a lot of land... I think it should be enough to start enjoying the Operator Framework. There's still a lot to learn so stay in touch!
+This is just an example that tries to cover a lot of land... I think it should be enough to start enjoying the Operator Framework. There's still a lot to learn so stay in touch!
