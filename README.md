@@ -40,10 +40,10 @@ In [Part One](./part-1-1.md) you'll learn:
 
 The [2nd part](./part-2-1.md) of the guide explains how to run a complete demonstration using the Gramola operator on Kubernetes, no need to code just enjoy deploying and upgrading Gramola. If you're using/testing OpenShift then I suggest you to run also/instead [this version](./part-2-2.md) of the guide (the inner workings are the same but the screenshots are different).
 
-<span style="color:red; font-weight: bold;">How is this guide different to others?</span>
+**How is this guide different to others?**
 
-1. I show you how to get it all done from zero to upgrade your operator seamlessly using the Operator Lifecycle Manager.
-2. I show you how to do this with Minikube and OpenShift
+1. It shows you how to get it all done from zero to upgrade your operator seamlessly using the Operator Lifecycle Manager.
+2. It also shows you how to do this with Minikube and OpenShift.
 
 ## Being grateful first
 
