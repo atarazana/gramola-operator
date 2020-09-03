@@ -1,4 +1,4 @@
-# End to End Operator Framework Demo
+# End to End Operator Framework Lab and Demo
 
 ## Introduction
 
