@@ -6,7 +6,7 @@ Part Two is way easier and doesn't involve coding. If you skipped part one becau
 
 Here we will install and upgrade the Gramola Operator, an operator in charge of installing and upgrading an application that involves data (*that changes its schema over time
 
-In general you see demos of operators that install a given system and that's it. This is not the case, Gramola, although it is a super-simple musical events system as explained before, stores events in a PostgreSQL database, more over, a change in the database schema is introduced in version 0.0.2 so the operator not only cares about installing the components (Deployments, ConfigMaps, Secrets, etc.) it also cares about updating the images of the different Deployments and, drum roll, upgrading the database schema if needed and migrating data if the schema suffered any changes. All this makes this demonstration, at least so I think, more interesting than the usual demo.
+In general, you see demos of operators that install a given system and that's it. This is not the case, Gramola, although it is a super-simple musical events system as explained before, stores events in a PostgreSQL database, more over, a change in the database schema is introduced in version 0.0.2 so the operator not only cares about installing the components (Deployments, ConfigMaps, Secrets, etc.) it also cares about updating the images of the different Deployments and, drum roll, upgrading the database schema if needed and migrating data if the schema suffered any changes. All this makes this demonstration, at least so I think, more interesting than the usual demo.
 
 We've divided this demo into:
 
@@ -20,11 +20,11 @@ End result:
 
 # Prerequisites
 
-It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally if you want to run the demo you also need:
+It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally, if you want to run the demo you also need:
 
 * Kubernetes/OpenShift Cluster (where you have administrative permissions) or use [Minikube](https://minikube.sigs.k8s.io/docs/start/) as we're going to do most of the time in this guide.
 
-**NOTE:** If you had had a look to the [other flavor](./part-2-1.md) of this guide you may have noticed there're less requirementes here: no need to clone the repo, no need to install OLM, no need to install NGINX Ingress Controller... Why? OpenShift has it all installed and ready to use OOTB.
+**NOTE:** If you had had a look to the [other flavor](./part-2-1.md) of this guide you may have noticed there're fewer requirements here: no need to clone the repo, no need to install OLM, no need to install NGINX Ingress Controller... Why? OpenShift has it all installed and ready to use OOTB.
 
 # Deploy a CatalogSource pointing to Gramola Bundle Index 0.0.1
 
@@ -58,7 +58,7 @@ Now go to `Operators->OperatorHub`. Refresh until you see a new category: `Other
 
 ![Other Catagory](./images/openshift-other-category.png)
 
-Click on the Gramola Operator. Once there, click on Install.
+Click on the Gramola Operator. Once there, click on `Install`.
 
 > **NOTICE:** Version is `0.0.1` and Capability level is `Basic Install`
 
@@ -82,7 +82,7 @@ In order to deploy Gramola we need to create an instance of AppService. The main
 
 ![Gramola Operator New AppService](./images/openshift-gramola-new-appservice.png)
 
-Filling the form and creating the object. Have a look to the different attributes, make sure that if you play with `Platform` you select `openshift` before clicking on 
+Filling the form and creating the object. Have a look to the different attributes, make sure that if you play with `Platform` you select `openshift` before clicking on `Create`.
 
 ![Gramola Operator Filling Form](./images/openshift-gramola-filling-form.png)
 
@@ -110,7 +110,7 @@ As we did with the `operator` plugin, let's create some sample data. Use the url
 ./create-sample-data.sh <gateway-url>
 ```
 
-In a similar fashion as we did for `gateway` copy the URL of `frontend`.
+Similarly, as we did for `gateway` copy the URL of `frontend`.
 
 ![Gramola Frontend url](./images/openshift-frontend-route.png)
 
@@ -164,7 +164,7 @@ So you have deployed 0.0.1, created data and then moved to 0.0.2 and all compone
 
 # Final thoughts
 
-How is this demo different [to the ones on vanilla kubernetes](./part-2-1.md)?
+How is this demo different [to the ones on vanilla Kubernetes](./part-2-1.md)?
 
 In several aspects:
 

@@ -4,7 +4,7 @@ Part Two is way easier and doesn't involve coding. If you skipped part one becau
 
 Here we will install and upgrade the Gramola Operator, an operator in charge of installing and upgrading an application that involves data (*that changes its schema over time
 
-In general you see demos of operators that install a given system and that's it. This is not the case, Gramola, although it is a super-simple musical events system as explained before, stores events in a PostgreSQL database, more over, a change in the database schema is introduced in version 0.0.2 so the operator not only cares about installing the components (Deployments, ConfigMaps, Secrets, etc.) it also cares about updating the images of the different Deployments and, drum roll, upgrading the database schema if needed and migrating data if the schema suffered any changes. All this makes this demonstration, at least so I think, more interesting than the usual demo.
+In general, you see demos of operators that install a given system and that's it. This is not the case, Gramola, although it is a super-simple musical events system as explained before, stores events in a PostgreSQL database, more over, a change in the database schema is introduced in version 0.0.2 so the operator not only cares about installing the components (Deployments, ConfigMaps, Secrets, etc.) it also cares about updating the images of the different Deployments and, drum roll, upgrading the database schema if needed and migrating data if the schema suffered any changes. All this makes this demonstration, at least so I think, more interesting than the usual demo.
 
 We've divided this demo into:
 
@@ -14,7 +14,7 @@ We've divided this demo into:
 
 # Prerequisites
 
-It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement.. Additionally if you want to run the demo you also need:
+It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally, if you want to run the demo you also need:
 
 * [Go](https://golang.org/dl) 1.13.5+
 * [Operator SDK](https://sdk.operatorframework.io/build/) v1.0.0+
@@ -78,9 +78,9 @@ git clone https://github.com/atarazana/gramola-operator
 
 ## Creating the cluster
 
-Before we run our code we need to have a kubernetes cluster. Let's create one... no worries, if you already have one is fine.
+Before you run our code you need to have a Kubernetes cluster. Let's create one... no worries, if you already have one is fine.
 
-> **NOTE 1:** If you have a cluster and administrative permissions on it you don't need to create any clusters just skip this section
+> **NOTE 1:** If you have a cluster and administrative permissions on it, you don't need to create any clusters just skip this section
 
 > **NOTE 2:** This time we're going to create the cluster using a different approach just for fun it can be a default cluster, in fact if you don't want more fun than necessary just run `minikube start`
 
@@ -117,7 +117,7 @@ minikube   Ready    master   38s   v1.18.3   192.168.64.8   <none>        Buildr
 
 ## Installing OLM
 
-Installing (and checking) OLM in a kubernetes cluster should be a straight forward task. Let's run first this command to check if OLM it's already installed intalled. Unless you have already installed OLM or your cluster is an OpenShift cluster you should get this error: 'no existing installation found'.
+Installing (and checking) OLM in a Kubernetes cluster should be a straight forward task. Let's run first this command to check if OLM it's already installed installed. Unless you have already installed OLM or your cluster is an OpenShift cluster you should get this error: 'no existing installation found'.
 
 ```sh
 $ operator-sdk olm status
@@ -186,7 +186,7 @@ operatorhubio-catalog                           olm          CatalogSource      
 
 Great we're ready to create a CatalogSource that points to our bundle index. More information on this [here](./part-1-1.md#creating-the-bundle-index)
 
-Please note there are a coouple or operators we're insterested on:
+Please note there are a couple or operators we're interested on:
 
 * **Catalog Operator:** The Catalog Operator is responsible for resolving and installing CSVs and the required resources they specify. It is also responsible for watching CatalogSources for updates to packages in channels and upgrading them (optionally automatically) to the latest available versions.
 * **OLM Operator:** The OLM Operator is responsible for deploying applications defined by CSV resources after the required resources specified in the CSV are present in the cluster.
@@ -254,7 +254,7 @@ Forwarding from 127.0.0.1:50051 -> 50051
 Forwarding from [::1]:50051 -> 50051
 ```
 
-From another terminal, subsitute `pkgName` value with ${OPERATOR_NAME}
+From another terminal, substitute `pkgName` value with ${OPERATOR_NAME}
 
 ```sh
 $ grpcurl -plaintext -d '{"pkgName":"gramola-operator","channelName":"alpha"}' localhost:50051 api.Registry/GetBundleForChannel
@@ -327,7 +327,7 @@ kubectl create ns ${PROJECT_NAME}
 
 ... and let's install it there:
 
-> **NOTE:** You need an OperatorGroup to get the operator installed by adding `--create-operator-group` the OperatorGroup is installed by kubectl-operator
+> **NOTE:** You need an OperatorGroup to get the operator installed by adding `--create-operator-group` the OperatorGroup is installed by `kubectl-operator`.
 
 ```sh
 $ kubectl operator -n ${PROJECT_NAME} install ${OPERATOR_NAME} --create-operator-group -v v0.0.1
@@ -375,9 +375,9 @@ spec:
   domainName: minikube.local
 ```
 
-If all has gone according to plan the Controller reconciliation loop should be receiving events and Gramola componentes should be installed or being installed.
+If all has gone according to plan the Controller reconciliation loop should be receiving events and Gramola components should be installed or being installed.
 
-> **NOTE:** Rember: frontend, gateway, events and events-database should be installed. Additionally if kubernetes then ingresses will be created, if OpenShift then Routes will be created instead.
+> **NOTE:** Remember: frontend, gateway, events and events-database should be installed. Additionally, if Kubernetes then ingresses will be created, if OpenShift then Routes will be created instead.
 
 ```sh
 $ kubectl get pod -n ${PROJECT_NAME}
@@ -400,8 +400,7 @@ gateway    <none>   gateway-gramola-operator-system.minikube.local    192.168.64
 
 Edit `/etc/hosts` so that we can add the corresponding entries for our ingress rules.
 
-> **NOTE:** Either by running `kubectl get ingress -n ${PROJECT_NAME}` or `minikikube ip` you can get the IP address to use in your hosts file. Change `hosts` accordingly
-
+> **NOTE:** Either by running `kubectl get ingress -n ${PROJECT_NAME}` or `minikikube ip` you can get the IP address to use in your hosts file. Change `hosts` accordingly.
 ```
 # Minikube ingress
 192.168.64.8    frontend-gramola-operator-system.minikube.local
@@ -454,7 +453,7 @@ PACKAGE           SUBSCRIPTION      INSTALLED CSV            CURRENT CSV        
 gramola-operator  gramola-operator  gramola-operator.v0.0.1  gramola-operator.v0.0.2  UpgradePending  5m
 ```
 
-You can also explore the install plans and see there's one that needs to be approved.
+You can also explore the InstallPlans and see there's one that needs to be approved.
 
 > **NOTE:** When we installed the operator by default it's set to `Manual` approval, but using `-a, --approval` you could have set it to `Automatic`
 
@@ -481,7 +480,7 @@ gramola-operator-controller-manager-696b664764-64wz4   2/2     Running       0  
 gramola-operator-controller-manager-fb7f56868-mcnvj    0/2     Terminating   0          6h21m
 ```
 
-Let's describe the AppService object. As explained before this operator on it's version 0.0.2 changes the database schema... and that has implications... the backend and gateway code expects some columns and so does the frontend. This meand the schema changes and existing data has to be migrated. Pay attention below to the Status section and you'll see that the operator tries several times to update PostgreSQL until it succeeds.
+Let's describe the AppService object. As explained before this operator on it's version 0.0.2 changes the database schema... and that has implications... the backend and gateway code expects some columns and so does the frontend. This means the schema changes and existing data has to be migrated. Pay attention below to the Status section and you'll see that the operator tries several times to update PostgreSQL until it succeeds.
 
 ```
 $ kubectl describe appservice -n $PROJECT_NAME 
@@ -579,7 +578,7 @@ Now in another terminal open [http://localhost:9000/](http://localhost:9000/dash
 
 ![Dashboard](./images/olm-dashboard.png)
 
-Now click on `Operators->Installed Operators`. If you see nothing there try setting the namespace to `gramola-operator-system`.
+Now click on `Operators->Installed Operators`. If, you see nothing there, try setting the namespace to `gramola-operator-system`.
 
 ![Installed Operators](./images/olm-installed-operators.png)
 
@@ -606,7 +605,7 @@ sed "s|BUNDLE_INDEX_IMG|quay.io/cvicens/gramola-operator-index:v0.0.1|" ./config
 catalogsource.operators.coreos.com/atarazana-catalog created
 ```
 
-Go back to the web console and click on `Operators->OperatorHub`. You should see a new category `Other` as in the picture, if you don't see it, be patient and refresh, evetually it will show up.
+Go back to the web console and click on `Operators->OperatorHub`. You should see a new category `Other` as in the picture, if you don't see it, be patient and refresh, eventually it will show up.
 
 ![Other Category](./images/olm-other-category.png)
 

@@ -9,7 +9,7 @@ We've divided this part into two steps:
 
 ## Prerequisites
 
-It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally if you want to run the demo or create your own Operator you also need:
+It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally, if you want to run the demo or create your own Operator you also need:
 
 * [Go](https://golang.org/dl) 1.13.5+
 * [Operator SDK](https://sdk.operatorframework.io/build/) v1.0.0+
@@ -85,7 +85,7 @@ Let's define some environment variables that will come handy later. Special atte
 
 For the sake of simplicity I've created script to load environment variables. 
 
-> **NOTE:** You can change the `APP_NAME`, `ORGANIZATION` and definetly yu want to change `USERNAME`. For instance below I have changed `APP_NAME` from gramola to gramophone so that I can have both operators.
+> **NOTE:** You can change the `APP_NAME`, `ORGANIZATION` and definitely you want to change `USERNAME`. For instance below I have changed `APP_NAME` from gramola to gramophone so that I can have both operators.
 
 ```sh
 cd ~/operators
@@ -125,7 +125,7 @@ We need to create the folder for the template code and change to it.
 mkdir ${OPERATOR_NAME} && cd ${OPERATOR_NAME} 
 ```
 
-We're going to need the environment varibles inside the operator folder.
+We're going to need the environment variables inside the operator folder.
 
 ```sh
 mv ../settings.sh .
@@ -150,9 +150,9 @@ $ operator-sdk create api
 
 We're not covering the basics around operators here but let's do a super-quick recap.
 
-An operator creates/manages things in a kubernetes cluster as defined in what we call a Custom Resource. Well the definition of that type of object is called Custom Resource Definition (or CRD for short). We could also call it API... kind of right? Well in this context when we say API we're referring to the CRD.
+An operator creates/manages things in a Kubernetes cluster as defined in what we call a Custom Resource. Well the definition of that type of object is called Custom Resource Definition (or CRD for short). We could also call it API... kind of right? Well in this context when we say API we're referring to the CRD.
 
-For instance, this CR of type Kafka creates a kafka cluster named 'my-cluster' where the storage is ephemeral and the number of replicas is 3.
+For instance, this CR of type Kafka creates a Kafka cluster named 'my-cluster' where the storage is ephemeral and the number of replicas is 3.
 
 ```yaml
 apiVersion: kafka.strimzi.io/v1beta1
@@ -199,7 +199,7 @@ In the case of Gramola the CRD is simple, it comprises the next attributes:
 - **platform**: string (it can only be `kubernetes` or `openshift`)
 - **domainName**: string, defaults to `minikube.local` (only used if `platform == kubernetes`)
 
-The next command creates a Golang struct representation of an empty template of CRD and also a Controller (the piece of code in charge of reacting to kubernetes events of interest to the operator).
+The next command creates a Golang struct representation of an empty template of CRD and also a Controller (the piece of code in charge of reacting to Kubernetes events of interest to the operator).
 
 > **NOTE:** This has changed compare to versions 0.x now you can create the API and also the controller with one command thaks to `--resource=true` and `--controller=true`
 
@@ -276,7 +276,7 @@ test: generate fmt vet manifests
 	go test ./... -coverprofile cover.out
 ```
 
-Substitute with this to help you installing the required  binaries/libraries and run the tests using those bins. Basically kubernetes and etcd libraries/bins. 
+Substitute with this to help you installing the required binaries/libraries and run the tests using those bins. Basically `Kubernetes` and `etcd` libraries/bins. 
 
 ```makefile
 # Prepare Test Env: https://sdk.operatorframework.io/docs/golang/references/env-test-setup/
@@ -305,11 +305,11 @@ make testbin
 
 Now you should have these binaries in `./testbin`
 
-- etcd
-- kube-apiserver
-- kubectl
+- `etcd`
+- `kube-apiserver`
+- `kubectl`
 
-Now if you run `make test` it should not complaint any more.
+Now if you run `make test` it shouldn't complain anymore.
 
 ## Let's dope the makefile a bit more
 
@@ -539,20 +539,20 @@ Now let's explain a little what we have changed.
 - We have deleted the `VERSION ?= 0.0.1` and added `include settings.sh`
 - Changed `BUNDLE_IMG` so that the bundle image is a full name related to the operator name and version
 - Added `FROM_BUNDLE_IMG` to do the same but for the previous version, in this demo it will be 0.0.1
-- Added `Bundle Index tag` section to define bundle index images in a similar fashion to the bundle images
-- Updated `IMG`, again to make the operator image name dependent of the enviroment variables.
+- Added `Bundle Index tag` section to define bundle index images similarly to the bundle images
+- Updated `IMG`, again to make the operator image name dependent of the environment variables.
 - Updated `run` target by adding an environment variable to allow the operator find the DB scripts
 - Added target `undeploy` to delete all the objects created when `deploy` is run
 - Added target `docker-run` just in case you want to run the operator as an image (opposite to the `run` target where you run the code locally). You need to add a folder `./run` to be mounted as `/var/run/secrets/kubernetes.io/serviceaccount`
 - Added targets `bundle-push`, `bundle-validate` and `bundle-all` to push the bundle image to the registry, validate it or do all at once
-- Added targets `index-build`, `index-push`,  `index-export` and `index-registry-serve` to handle bundle indexes and the registry databases
-- Added targets `catalog-deploy-prev`, `install-operator`, `catalog-deploy`, `upgrade-operator`, `uninstall-operator` and `catalog-undeploy` to handle the operator catalog and as a whole to run the demonstration for gramola
+- Added targets `index-build`, `index-push`, `index-export` and `index-registry-serve` to handle bundle indexes and the registry databases
+- Added targets `catalog-deploy-prev`, `install-operator`, `catalog-deploy`, `upgrade-operator`, `uninstall-operator` and `catalog-undeploy` to handle the operator catalog and as a whole to run the demonstration for gramola.
 
 > **NOTE:** Take into account that this setup was created for the Gramola Operator demonstration, I say this because you should take it as a source of inspiration and to help you get started not as a one-size-fit-all-kind-of template.
 
 ## Building v0.0.1
 
-Well it's time to look into the code and make it actually do something. As we have explained at the core of any operator lays a controller watching at kubernetes events, in particular events related to objects of interest, for instance our CRDs and other object the operator owns (Pods, Deployments, etc.).
+Well it's time to look into the code and make it actually do something. As we have explained at the core of any operator lays a controller watching at Kubernetes events, in particular events related to objects of interest, for instance our CRDs and other object the operator owns (Pods, Deployments, etc.).
 
 ### Defining the CRD (API)
 
@@ -571,16 +571,16 @@ type AppService struct {
 }
 ```
 
-As you can see this struct declares a normal kubernetes object comprising:
+As you can see this struct declares a normal Kubernetes object comprising:
 
 * **TypeMeta:** Kind and APIVersion
 * **ObjectMeta:** Name, Labels, Annotations, etc.
 * **Spec:** This is where define the attributes of the *specification* of our CRD
-* **Status:** Here we define the attributes to *status* of the system we're managing from the controller reciliation loop 
+* **Status:** Here we define the attributes to *status* of the system we're managing from the controller reconciliation loop 
 
-So for instance in this simple example we want to deploy a Memcached cluster and one of the attributes of the specification of the cluster could be number of replicas, right?
+So for instance in this simple example we want to deploy a Memcached cluster and one of the attributes of the specification of the cluster could include `number of replicas` as an attribute, right?
 
-Let's add an attribute called Size, subtitute this:
+Let's add an attribute called Size, substitute this:
 
 ```go
     // Foo is an example field of AppService. Edit AppService_types.go to remove/update
@@ -597,7 +597,7 @@ With this:
 	Size int32 `json:"size"`
 ```
 
-Additionally It would be nice to have a list of Memcached node names in the status. Find this:
+Additionally, It would be nice to have a list of Memcached node names in the status. Find this:
 
 ```go
 // AppServiceStatus defines the observed state of AppService
@@ -627,7 +627,7 @@ make
 
 Have a look to `./api/v1/zz_generated.deepcopy.go` or run this command to see that the file has changed as a result of running `make generate`.
 
-> **NOTE:** `make generate` will invoke the [**controller-gen**](https://github.com/kubernetes-sigs/controller-tools) utility to update the api/v1alpha1/zz_generated.deepcopy.go. No need to install anything it's all handled by the Makefile
+> **NOTE:** `make generate` will invoke the [**controller-gen**](https://github.com/kubernetes-sigs/controller-tools) utility to update the api/v1alpha1/zz_generated.deepcopy.go. No need to install anything it's all handled by the Makefile.
 
 ```sh
 grep "Node" ./api/v1/zz_generated.deepcopy.go
@@ -651,7 +651,7 @@ type AppService struct {
 
 There something else that needs to be generated, the CRD descriptors. So far we have defined the struct in go, but not the YAML representation of the same object. This is done with the next makefile target. Please run it:
 
-> **NOTE:** The generated CRD descriptor goes `./config/crd/bases`. Open the descritor and you'll find `Size` and `Nodes`.
+> **NOTE:** The generated CRD descriptor goes `./config/crd/bases`. Open the descriptor and you'll find `Size` and `Nodes`.
 
 ```sh
 make manifests
@@ -663,13 +663,13 @@ Before adding the code let me explain what it does. Our Controller will run the 
 
 * Create a memcached Deployment if it doesn’t exist
 * Ensure that the Deployment size is the same as specified by the Memcached CR spec
-* Update the Memcached CR status using the status writer with the names of the memcached pods
+* Update the Memcached CR status using the status writer with the names of the Memcachedd pods
 
 Now maybe you're wondering... **What's the entry point of a Controller? How does it start dealing with events? What events? Does it glow in the dark?**
 
 Let's change the code of our empty controller with this one. Open file `./controllers/appservice_controller.go`
 
-> **NOTE:** If you want to have a look to the original controlloler of the tutorial go [here](https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl)
+> **NOTE:** If you want to have a look to the originalcontrollerr of the tutorial go [here](https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl).
 
 ```sh
 curl https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl | \
@@ -728,7 +728,7 @@ func main() {
 	}
 ```
 
-Next stop, `SetupWithManager()` this function belogs to the our controller where we have defined it under `AppServiceReconciler`. It creates a new controller that will be started by the provided `Manager`. This way the `Controller` is managed by the `Manager` but configured in a method of the `Controller`.
+Next stop, `SetupWithManager()` this function belongs to the controller where we have defined it under `AppServiceReconciler`. It creates a new controller that will be started by the provided `Manager`. This way the `Controller` is managed by the `Manager` but configured in a method of the `Controller`.
 
 > *NOTE:* The `Controller` is initialized with `Client` and `Scheme` from the Manager.
 
@@ -754,11 +754,11 @@ Last stop, starting the controller. From the documentation: *"**Start() starts a
 }
 ```
 
-So far we have anwered this question.
+So far we have answered this question.
 
-* What's the entry point of a Controller? The controller starts when Start() is called in the Manager that manages our Controller
+* What's the entry point of a Controller? The controller starts when Start() is called in the Manager that manages our Controller.
 
-Now let's have a look to the Controller the manager starts. First we find the struct `AppServiceReconciler` this is filled in `main()` and has a client (kubernetes client to get/set/... objects), Log (logging utility), Scheme (explained before). 
+Now let's have a look to the Controller the manager starts. First we find the struct `AppServiceReconciler` this is filled in `main()` and has a client (Kubernetes client to get/set/... objects), Log (logging utility), Scheme (explained before). 
 
 ```go
 ...
@@ -819,9 +819,9 @@ func (r *AppServiceReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 }
 ```
 
-Well that's basically a Controller a `Reconcile()` function where you use the kubernetes client API to create, delete, list, objects. Time for checking the pending questions.
+Well that's basically a Controller a `Reconcile()` function where you use the Kubernetes client API to create, delete, list, objects. Time for checking the pending questions.
 
-* **How does it start dealing with events?** Whenever there's a new event related to the objects watched the Reconcile() method is called
+* **How does it start dealing with events?** Whenever there's a new event related to the objects watched the `Reconcile()` method is called.
 
 So there's one more question to answer: What events?
 
@@ -838,14 +838,14 @@ func (r *AppServiceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 Let's review the remaining questions:
 
-* **What events?** Events from the opertor CRD and other owned objects
+* **What events?** Events from the operator CRD and other owned objects
 * **Does it glow in the dark?** Not really... your controller could shine... but glow... I wish it did!
 
 #### A note regarding RBAC
 
 As you have learnt, or guessed, Operators run as PODs and to do so a Service Account is involved and of course Roles and ClusterRoles should be created and linked with RoleBindings or ClusterRoleBindings respectively.
 
-Since Operator SDK v1.0.0 and the introduction of Makefile all the assets needed related to RBAC are generated for you automatically. To do so kubebuilder underneath will help us generating the roles from comments like the ones below.
+Since Operator SDK v1.0.0 and the introduction of Makefile all the assets needed related to RBAC are generated for you automatically. To do so kubebuilder underneath will help us to generate the roles from comments like the ones below.
 
 > **NOTE:** Please open `./controllers/appservice_controller.go` and look for `+kubebuilder:rbac` to find them.
 
@@ -963,7 +963,7 @@ make run
 
 Now try (from a second terminal) to create a CR using the sample generated by the Operator SDK. Don't worry you'll get an error.
 
-> **TIP:** Load environemt with `. ./settings.sh` and export PATH as we did before, export PATH=~/operators/bin:$PATH`
+> **TIP:** Loadenvironmentt with `. ./settings.sh` and export PATH as we did before, export PATH=~/operators/bin:$PATH`
 
 ```sh
 $ kubectl apply -f ./config/samples/gramophone_v1_appservice.yaml 
@@ -1007,7 +1007,7 @@ appservice-sample   2/2     2            2           46s
 
 That means the operator logic works locally... using our local token, the one you're using with kubectl. That's cheating a bit ;-)
 
-Let's do some clean up, delete the AppService object.
+Let's do some cleaning, delete the AppService object.
 
 ```sh
 kubectl delete -f ./config/samples/gramophone_v1_appservice.yaml 
@@ -1031,7 +1031,7 @@ make docker-push
 
 And don't forget to make it public!
 
-You can `Ctrl+C` in the 1st terminal becuase it's time to deploy the operator!
+You can `Ctrl+C` in the 1st terminal because it's time to deploy the operator!
 
 > **TIP:** Have a look to the objects created, including the namespace, `gramola-operator-system` in this example
 
@@ -1105,7 +1105,7 @@ From the original [documentation](https://github.com/operator-framework/operator
 
 So a bundle is a bunch of files that define the operator and how to run it, it includes:
 
-* **Cluster Service Version:** in it's turn includes
+* **Cluster Service Version:** in its turn includes
     * Name, examples, capabilities, ...
     * Permissions (Role), Cluster Permissions (ClusterRole)
     * Reference to CRDs owned by the operator
@@ -1116,7 +1116,7 @@ So a bundle is a bunch of files that define the operator and how to run it, it i
 
 As mostly everything since Operator SDK 1.0.0 there's a makefile target for it. And you guessed well it `make bundle`. So go to the terminal window, make sure the environment is loaded and run:
 
-> **TIP:** Before running the command have a look to the out put bellow and prepare some nice answers to the questions asked while running the target. No worries, you can change those later if you need to.
+> **TIP:** Before running the command have a look to the output bellow and prepare some nice answers to the questions asked while running the target. No worries, you can change those later if you need to.
 
 ```
 $ make bundle
@@ -1163,7 +1163,7 @@ Also have a look to `./config/manifests/base/${OPERATOR_NAME}.clusterservicevers
 For instance edit the file `${OPERATOR_NAME}.clusterserviceversion.yaml` and 
 change `spec.description`.
 
-> **NOTE:** Indentation is critical here... don't tell me I didn't told you ;-)
+> **NOTE:** Indentation is critical here... don't tell me I didn't tell you ;-)
 
 ```yaml
 spec:
@@ -1282,7 +1282,7 @@ opm index add --bundles quay.io/my-container-registry-namespace/my-manifest-bund
 opm index add --bundles quay.io/my-container-registry-namespace/my-manifest-bundle:0.0.2 --from-index quay.io/my-container-registry-namespace/my-index:1.0.0 --tag quay.io/my-container-registry-namespace/my-index:1.0.1
 ```
 
-So, it turns out that we need [`opm`](https://github.com/operator-framework/operator-registry#building-an-index-of-operators-using-opm) to generate and update images (and the sqlite databases underneath). Let's install it. In a new terminal.
+So, it turns out that we need [`opm`](https://github.com/operator-framework/operator-registry#building-an-index-of-operators-using-opm) to generate and update images (and the SQLite databases underneath). Let's install it. In a new terminal.
 
 ```sh
 mkdir -p ~/operators/tools
@@ -1412,7 +1412,7 @@ spec:
 EOF
 ```
 
-Now we can run the target `catalog-deploy` which basically substitutes BUNDLE_INDEX_IMG by the value of $(BUNDLE_INDEX_IMG) which is calculated in the makefile itself. Let's run it.
+Now we can run the target `catalog-deploy` which basically substitutes `BUNDLE_INDEX_IMG` by the value of `$(BUNDLE_INDEX_IMG)` which is calculated in the makefile itself. Let's run it.
 
 > **NOTE:** By default this target will create the CatalogSource in `olm` namespace. To override: `make catalog-deploy CATALOG_NAMESPACE=default`
 
@@ -1492,10 +1492,10 @@ $ grpcurl -plaintext -d '{"pkgName":"gramophone-operator","channelName":"alpha"}
 
 In order to install the operator you can choose between:
 
-* using kubectl-operator plugin
+* using `kubectl-operator` plugin
 * using OLM console
 
-Here we're going to use kubectl-operator. So the first step is installing it. In a new terminal:
+Here we're going to use `kubectl-operator`. So the first step is installing it. In a new terminal:
 
 ```sh
 mkdir -p ~/operators/tools

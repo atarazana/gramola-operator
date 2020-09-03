@@ -1,8 +1,8 @@
-# An unsual Operator Framework Demo
+# An unusual Operator Framework Demo
 
 # Introduction
 
-After a conversation with my colleague [Tero Ahonen](https://github.com/tahonen) we decided to prepare a session to highlight the benefits a developer can get from Operators in general and from the [Operator Framework](https://github.com/operator-framework) in particular. For that session we depicted two demos: one to show how easy it is to have a Kafka cluster on OpenShift (Red Hat's kubernetes distribution) and another one showing a custom operator that could deploy and update an application called [**Gramola**](https://github.com/cvicens/gramola) using the [**Operator Lifecycle Manager**](https://github.com/operator-framework/operator-lifecycle-manager) (**OLM**). This is the repository for the latter.
+After a conversation with my colleague [Tero Ahonen](https://github.com/tahonen) we decided to prepare a session to highlight the benefits a developer can get from Operators in general and from the [Operator Framework](https://github.com/operator-framework) in particular. For that session we depicted two demos: one to show how easy it is to have a Kafka cluster on OpenShift (Red Hat's Kubernetes distribution) and another one showing a custom operator that could deploy and update an application called [**Gramola**](https://github.com/cvicens/gramola) using the [**Operator Lifecycle Manager**](https://github.com/operator-framework/operator-lifecycle-manager) (**OLM**). This is the repository for the latter.
 
 Gramola is a simple application that shows a list of (musical) Events. It comprises:
 
@@ -22,7 +22,7 @@ The purpose of this repository is twofold:
 
 So you can develop your own operator to then deploy it and upgrade it using **OLM** (for the brave!) or just deploy and upgrade the Gramola Operator (for... also the brave!).
 
-> **NOTE 1:** This guide covers using OLM on kubernetes and also on OpenShift.
+> **NOTE 1:** This guide covers using OLM on Kubernetes and also on OpenShift.
 
 > **NOTE 2:** Some say I tend to use **NOTES** more than average... it's true.
 
@@ -38,7 +38,7 @@ In [Part One](./part-1-1.md) you'll learn:
 
 > **NOTE:** In order to make the Part One easier (Gramola is not complicated but it has too many moving parts) we're going to use the [Golang Based Operator Tutorial](https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/) as a base for this lab.
 
-The [2nd part](./part-2-1.md) of the guide explains how to run a complete demonstration using the Gramola operator on kubernetes, no need to code just enjoy deploying and upgrading Gramola. If you're using/testing OpenShift then I suggest you to run also/instead [this version](./part-2-2.md) of the guide (the innerworkings are the same but the screenshots are different).
+The [2nd part](./part-2-1.md) of the guide explains how to run a complete demonstration using the Gramola operator on Kubernetes, no need to code just enjoy deploying and upgrading Gramola. If you're using/testing OpenShift then I suggest you to run also/instead [this version](./part-2-2.md) of the guide (the inner workings are the same but the screenshots are different).
 
 <span style="color:red; font-weight: bold;">How is this guide different to others?</span>
 
@@ -46,6 +46,8 @@ The [2nd part](./part-2-1.md) of the guide explains how to run a complete demons
 2. I show you how to do this with Minikube and OpenShift
 
 ## Being grateful first
+
+Thanks to [Tero Ahonen](https://github.com/tahonen) who pushed me (inadvertently?) to create this.
 
 Parts of the code of this operator were borrowed from another [operator](https://github.com/mcouliba/openshift-workshop-operator) coded by my colleague [Madou Couliba](https://github.com/mcouliba).
 

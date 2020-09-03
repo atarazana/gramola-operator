@@ -197,7 +197,7 @@ gramophone-operator-controller-manager-589d887cf7-whpt6   2/2     Running   4   
 
 As you can see currently there's just 1 container per appservice pod. Compare to gramophone-operator-controller-manager it has 2.
 
-Ok, time for testing. As we did before, you can run your code locally ans see the result... but to avoid disturbances of the operator already running, let's scale down the operator to `zero` replicas.
+Ok, time for testing. As we did before, you can run your code locally and see the result... but to avoid disturbances of the operator already running, let's scale down the operator to `zero` replicas.
 
 ```sh
 $ kubectl scale deploy gramophone-operator-controller-manager  --replicas=0 -n operator-tests
@@ -248,7 +248,7 @@ promhttp_metric_handler_requests_total{code="503"} 0
 
 Nice! Our code works locally.
 
-What if it didn't... No problem, you can always debug... for instance with VSCode and the [golang extension](https://marketplace.visualstudio.com/items?itemName=golang.Go). You have to install the extension and then run the following commands. Finally open the debugging area and click on the green arrow.
+What if it didn't... No problem, you can always debug... for instance with VSCode and the [golang extension](https://marketplace.visualstudio.com/items?itemName=golang.Go). You have to install the extension and then run the following commands. Finally, open the debugging area and click on the green arrow.
 
 ```sh
 mkdir -p .vscode
@@ -287,7 +287,7 @@ Don't forget to reload environment... in any terminal you use... just in case:
 
 As we did before after running the code locally we have to build the operator image and run it from the operator deployment.
 
-> **TIP:** Check that `VERSION` and `FROM_VERSION` are correct. ``
+> **TIP:** Check that `VERSION` and `FROM_VERSION` are correct.
 
 Let's build the operator image:
 
@@ -350,7 +350,7 @@ quay.io/cvicens/gramophone-operator-image:v0.0.2
 
 Now let's create a sample AppService:
 
-> **NOTE:** This test is different from the one we run when we run the code locally... because there's no previous AppService and hence there's no previoud Memcached deployment to update
+> **NOTE:** This test is different from the one we run when we run the code locally... because there's no previous AppService and hence there's nopreviousd Memcached deployment to update
 
 ```sh
 $ kubectl apply -n $PROJECT_NAME -f ./config/samples/gramophone_v1_appservice.yaml 
@@ -390,13 +390,11 @@ Next stop, create the bundle for the current version (0.0.2).
 
 ## Create an operator bundle and it's corresponding image for version 0.0.2
 
-This should be easy... just run the following to regenerate the bundle for the new version... wait, wait, I forgot something crucial here...  version 0.0.2 replaces 0.0.1 this should be specified somewhere... specifically in the CSV. Let's do it.
+This should be easy... just run the following to regenerate the bundle for the new version... wait, wait, I forgot something crucial here... Version 0.0.2 replaces 0.0.1 this should be specified somewhere... specifically in the base CSV. Let's do it.
 
-Open file ``
+Open file `./config/manifests/bases/${OPERATOR_NAME}.clusterserviceversion.yaml`, and add `replaces: ${OPERATOR_NAME}.v0.0.1` right underneath `version: 0.0.0`, **pay attention to indentation**. The end result should look like this:
 
-And add `replaces: ${OPERATOR_NAME}.v0.0.1` right underneath `version: 0.0.0`, **pay attention to indentation** (should all we have a t-shirt with this moto?). The end result should look like this:
-
-> **WARNING:** In my case `${OPERATOR_NAME}.v0.0.1` === `gramophone-operator.v0.0.1` in your case it depends if you changed your `./settings.sh` file
+> **WARNING:** In my case `${OPERATOR_NAME}.v0.0.1` === `gramophone-operator.v0.0.1` in your case it depends on if you changed your `./settings.sh` file or not.
 
 ```yaml
 ...
@@ -438,7 +436,7 @@ make bundle-push
 
 ## Create and push the new Bundle Index (0.0.2)
 
-As we advanced before we use `FROM_VERSION` so that we can understand of we have to create a new Index from scratch or start from a previous bundle index to create the new one. As `FROM_VERSION` is define the makefile target will create index 0.0.2 from 0.0.1
+As we advanced before we use `FROM_VERSION` so that we can understand of we have to create a new Index from scratch or start from a previous bundle index to create the new one. Because `FROM_VERSION` is defined the makefile target will create index 0.0.2 based on (from) 0.0.1
 
 ```sh
 $  make index-build
@@ -460,7 +458,7 @@ make index-push
 
 ## Update the CatalogSource to point to the new Bundle Index
 
-Let's do some clean up before we test our new bundle index.
+Let's do some cleaning before we test our new bundle index.
 
 ```sh
 make catalog-undeploy
@@ -498,7 +496,7 @@ $ kubectl apply -f ./config/samples/gramophone_v1_appservice.yaml -n operator-te
 appservice.gramophone.atarazana.com/appservice-sample created
 ```
 
-Ok, as expectec 2 pods because size is 2 and 1 container per pod because it's version 0.0.1.
+Ok, as expected 2 pods because size is 2 and 1 container per pod because it's version 0.0.1.
 
 ```sh
 $ kubectl get pod -n operator-tests
@@ -531,7 +529,7 @@ operator "gramophone-operator" upgraded; installed csv is "gramophone-operator.v
 
 ## Final tests
 
-Finally let's check the result. And yes... there it is the second container!
+Finally, let's check the result. And yes... there it is the second container!
 
 ```sh
 $ kubectl get pod -n operator-tests
