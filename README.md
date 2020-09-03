@@ -1,6 +1,6 @@
-# An unusual Operator Framework Demo
+# End to End Operator Framework Demo
 
-# Introduction
+## Introduction
 
 After a conversation with my colleague [Tero Ahonen](https://github.com/tahonen) we decided to prepare a session to highlight the benefits a developer can get from Operators in general and from the [Operator Framework](https://github.com/operator-framework) in particular. For that session we depicted two demos: one to show how easy it is to have a Kafka cluster on OpenShift (Red Hat's Kubernetes distribution) and another one showing a custom operator that could deploy and update an application called [**Gramola**](https://github.com/cvicens/gramola) using the [**Operator Lifecycle Manager**](https://github.com/operator-framework/operator-lifecycle-manager) (**OLM**). This is the repository for the latter.
 
