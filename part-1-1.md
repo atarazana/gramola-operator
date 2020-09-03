@@ -1390,7 +1390,7 @@ operatorhubio-catalog                           olm          CatalogSource      
 
 Great we're ready to create a CatalogSource that points to our bundle index. 
 
-## Deploy the CatalogSource pointing to index 0.0.1
+## Deploy a CatalogSource pointing to Gramola Bundle Index 0.0.1
 
 I have prepared a makefile target called `catalog-deploy` to do this.
 

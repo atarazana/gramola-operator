@@ -209,7 +209,7 @@ Do this every time you need to open a new terminal window.
 . ./settings.sh
 ```
 
-# Deploy the CatalogSource pointing to index 0.0.1
+# Deploy a CatalogSource pointing to Gramola Bundle Index 0.0.1
 
 I have prepared a makefile target called `catalog-deploy-prev` that deploys version 0.0.1 of the CatalogSource this means it kind of goes back in time because you're in `master` where version is 0.0.2 but it's just to simplify the demo.
 

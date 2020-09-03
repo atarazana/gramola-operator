@@ -14,6 +14,10 @@ We've divided this demo into:
 2. Generate some data
 3. Upgrade the operator moving from version 0.0.1 to 0.0.2
 
+End result:
+
+![Gramola Deployment](./images/gramola-deployed.png)
+
 # Prerequisites
 
 It would be nice to have basic understanding of what an operator is to follow this guide, but it's not a requirement. Additionally if you want to run the demo you also need:
@@ -22,9 +26,9 @@ It would be nice to have basic understanding of what an operator is to follow th
 
 **NOTE:** If you had had a look to the [other flavor](./part-2-1.md) of this guide you may have noticed there're less requirementes here: no need to clone the repo, no need to install OLM, no need to install NGINX Ingress Controller... Why? OpenShift has it all installed and ready to use OOTB.
 
-# Deploy the CatalogSource pointing to index 0.0.1
+# Deploy a CatalogSource pointing to Gramola Bundle Index 0.0.1
 
-Log in the OpenShift console as a user with administrative privileges and go to `Home->Projects`. Click on `Create Project` and name your project `gramola-operator-system`.
+Log in the OpenShift console as a user with administrative privileges and go to `Home->Projects`. We need a project (namespace) to work on so click on `Create Project` and name your project `gramola-operator-system`.
 
 ![Create Project](./images/openshift-create-project.png)
 
@@ -33,8 +37,6 @@ Now let's add a yaml describing a CatalogSource, click on the `+` sign at the to
 ![Import YAML](./images/openshift-import-yaml.png)
 
 Copy and paste the next content and click `Create`.
-
-TODO: > NOTE: A CatalogSource... 
 
 ```yaml
 apiVersion: operators.coreos.com/v1alpha1
@@ -50,10 +52,11 @@ spec:
 
 ![Create Catalog Source](./images/openshift-create-catalog-source.png)
 
+# Installing version 0.0.1 of Gramola Operator
+
 Now go to `Operators->OperatorHub`. Refresh until you see a new category: `Other`. Then click on it, you should see this.
 
 ![Other Catagory](./images/openshift-other-category.png)
-
 
 Click on the Gramola Operator. Once there, click on Install.
 
@@ -73,7 +76,9 @@ After a little while you should see this. Then click on `Gramola Operator`.
 
 ![Gramola Operator Installed](./images/openshift-gramola-installed.png)
 
-Create an instance of AppService:
+# Deploying Gramola 0.0.1 using the Gramola Operator
+
+In order to deploy Gramola we need to create an instance of AppService. The main and in this case only CRD handled by the operator:
 
 ![Gramola Operator New AppService](./images/openshift-gramola-new-appservice.png)
 
@@ -90,6 +95,8 @@ Now let's have a look to the Topology in the Developer view. Click on `Administr
 > **NOTE:** You'll see the graph evolve and deployments change status.
 
 ![Gramola Operator AppService Resources](./images/opemshift-developer-1.png)
+
+# Testing Gramola 0.0.1
 
 Once all elements are dark blue (as in the picture above), click on the `gateway` deployment. Then copy the Route link, we'll use it in a second.
 
@@ -115,7 +122,7 @@ Open a browser pointing to the URL you just copied. Now you should see this:
 
 Great! You have tested version 0.0.1 of your operator running automatically through the [Operator Lifecycle Manager](https://github.com/operator-framework/operator-lifecycle-manager).
 
-### Upgrading Gramola to v0.0.2
+# Upgrading Gramola to 0.0.2
 
 Let's edit the CatalogSource we created before. Go to `Search` and look for `CatalogSource` as in the picture.
 
@@ -129,7 +136,7 @@ And in order to edit the descriptor click on `YAML`.
 
 ![Search CatalogSource](./images/openshift-edit-catalogsource-1c.png)
 
-Change 0.0.1 by 0.0.2 as in the picture then click on `Save`. 
+**Change 0.0.1 by 0.0.2** as in the picture then click on `Save`. 
 
 ![Search CatalogSource](./images/openshift-edit-catalogsource-2.png)
 
@@ -145,13 +152,24 @@ Transitioning... database upgrade, images update, etc.
 
 ![Gramola Upgrading](./images/openshift-topology-transition-2.png)
 
-### Testing version 0.0.2
+# Testing version 0.0.2
 
-Once the deployments have been stabilized open a new browser/new tab and point to the `fronted` URL we used before. This time you should see something like this:
+Once the deployments have been stabilized (all dark blue) open a new browser/new tab and point to the `fronted` URL we used before. This time you should see something like this:
 
 > **NOTICE:** The event date has been split into Start and End dates...
 
 ![Frontend 0.0.2](./images/frontend-3.png)
 
-So you have deployed 0.0.1, created data and then move to 0.0.2 and it al still works. Awesome!
+So you have deployed 0.0.1, created data and then moved to 0.0.2 and all components and database schema have been upgraded and data migrated all automatically. Awesome!
+
+# Final thoughts
+
+How is this demo different [to the ones on vanilla kubernetes](./part-2-1.md)?
+
+In several aspects:
+
+* No need to install OLM because is part of OpenShift and as such is already installed and supported
+* No need to install NGINX Ingress Controller, OpenShift uses Routes by default.
+* Web Console integrates everything related to Operators although you can still use kubectl to deal with them.
+
 
