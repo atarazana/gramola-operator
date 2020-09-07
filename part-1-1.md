@@ -69,7 +69,7 @@ Parts of the code of this operator were borrowed from another [operator](https:/
 
 # Step 1: Creating the Gramola Operator
 
-The next steps are basically the ones in [this](https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/) guide. I just compiled the steps in that guide and simplified some things ( I hope ;-) )
+The next steps are basically the ones in [this](https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/) guide. I just compiled the steps in that guide and simplified some things. I hope ;-)
 
 ## Log in to quay.io (or the registry you use)
 
@@ -193,7 +193,7 @@ spec:
 In the case of Gramola the CRD is simple, it comprises the next attributes:
 
 - **enabled**: boolean, mandatory (if `false` the operator should do nothing)
-- **initialized**: boolean (filled by the operator, tells if the resource has been checked and initilized properly)
+- **initialized**: boolean (filled by the operator, tells if the resource has been checked and initialized properly)
 - **alias**: string (if set, it has to be one of: `Gramola`/`Gramophone`/`Phonograph`)
 - **location**: string, defaults to `EMEA` (dummy)
 - **platform**: string (it can only be `kubernetes` or `openshift`)
@@ -201,7 +201,7 @@ In the case of Gramola the CRD is simple, it comprises the next attributes:
 
 The next command creates a Golang struct representation of an empty template of CRD and also a Controller (the piece of code in charge of reacting to Kubernetes events of interest to the operator).
 
-> **NOTE:** This has changed compare to versions 0.x now you can create the API and also the controller with one command thaks to `--resource=true` and `--controller=true`
+> **NOTE:** This has changed compare to versions 0.x now you can create the API and also the controller with one command thanks to `--resource=true` and `--controller=true`
 
 ```sh
 operator-sdk create api --group ${APP_NAME} --version v1 --kind AppService --resource=true --controller=true
@@ -213,8 +213,8 @@ Before messing with the code, CRDs, etc. let me explain briefly what we have gen
 * **./config**: Basically contains templates/resources you'll use indirectly when running some targets in the Makefile (customization of descriptors will be done with [kustomize](https://kubernetes-sigs.github.io/kustomize/))
 * **./controllers**: The key file here is `appservice_controller.go` is where the meat is, the operator controller code. The reconciliation loop is here, the Manager setup and Predicates code too.
 * **./hack**: boilerplate.go.txt contains text you want to be inserted in generated file
-* **./Dockerfile**: As you already know an operator needs to run as a container in a kubernetes cluster... hence we need a Dockerfile. Pay attention to `# Copy the go source` if you need to put code in a different folder you have to add that folder there. 
-* **./go.x**: Normal go modules helper files. If `GO111MODULE` is not set go modules dependency managemente won't work. No worries is already in the `settings.sh` file you created before.
+* **./Dockerfile**: As you already know an operator needs to run as a container in a Kubernetes cluster... hence we need a Dockerfile. Pay attention to `# Copy the go source` if you need to put code in a different folder you have to add that folder there. 
+* **./go.x**: Normal go modules helper files. If `GO111MODULE` is not set, go modules dependency management won't work. No worries it's already in the `settings.sh` file you created before.
 * **./main.go**: Here is where the Manager is created and 
 * **./Makefile**: 
 * **./PROJECT**: 
@@ -276,7 +276,7 @@ test: generate fmt vet manifests
 	go test ./... -coverprofile cover.out
 ```
 
-Substitute with this to help you installing the required binaries/libraries and run the tests using those bins. Basically `Kubernetes` and `etcd` libraries/bins. 
+Substitute with this to help you to install the required binaries/libraries and run the tests using those bins. Basically `Kubernetes` and `etcd` libraries/bins. 
 
 ```makefile
 # Prepare Test Env: https://sdk.operatorframework.io/docs/golang/references/env-test-setup/
@@ -313,7 +313,7 @@ Now if you run `make test` it shouldn't complain anymore.
 
 ## Let's dope the makefile a bit more
 
-Now we're going to replace the Makefile with the next one. I know... we have jast changed the test target and now we replace the whole file? Well let's call this an artistic license... or that I'm running out of time writing this guide.
+Now we're going to replace the Makefile with the next one. I know... we have just changed the test target and now we replace the whole file? Well let's call this an artistic license... or that I'm running out of time writing this guide.
 
 ```makefile
 include settings.sh
@@ -534,7 +534,7 @@ Now let's explain a little what we have changed.
 
 **Variables:**
 
-> Don't worry if you don't know what's a bundle, a bundle index or a catalog... just bear with me we'll cover that later. Just be concious of the changes made.
+> Don't worry if you don't know what's a bundle, a bundle index or a catalog... just bear with me we'll cover that later. Just be conscious of the changes made.
 
 - We have deleted the `VERSION ?= 0.0.1` and added `include settings.sh`
 - Changed `BUNDLE_IMG` so that the bundle image is a full name related to the operator name and version
@@ -589,7 +589,7 @@ Let's add an attribute called Size, substitute this:
 
 With this:
 
-> **TIP:** You can associate a validation (that will be used by Kuberenetes to check if the CR is valid) to the attributes you add to the CRD as in this example: `Minimum=0`. Go [here](https://book.kubebuilder.io/reference/markers/crd-validation.html) for a complete list of validations.
+> **TIP:** You can associate a validation (that will be used by Kubernetes to check if the CR is valid) to the attributes you add to the CRD as in this example: `Minimum=0`. Go [here](https://book.kubebuilder.io/reference/markers/crd-validation.html) for a complete list of validations.
 
 ```go
     // +kubebuilder:validation:Minimum=0
@@ -661,15 +661,15 @@ make manifests
 
 Before adding the code let me explain what it does. Our Controller will run the next reconciliation logic for each AppService CR:
 
-* Create a memcached Deployment if it doesn’t exist
+* Create a Memcached Deployment if it doesn’t exist
 * Ensure that the Deployment size is the same as specified by the Memcached CR spec
-* Update the Memcached CR status using the status writer with the names of the Memcachedd pods
+* Update the Memcached CR status using the status writer with the names of the Memcached pods
 
 Now maybe you're wondering... **What's the entry point of a Controller? How does it start dealing with events? What events? Does it glow in the dark?**
 
 Let's change the code of our empty controller with this one. Open file `./controllers/appservice_controller.go`
 
-> **NOTE:** If you want to have a look to the originalcontrollerr of the tutorial go [here](https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl).
+> **NOTE:** If you want to have a look to the original controller of the tutorial go [here](https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl).
 
 ```sh
 curl https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl | \
@@ -694,7 +694,7 @@ make
 
 Ok, let's have a look to the most interesting parts of the controller and try to answer those caustic questions.
 
-Let me start from the begining the entry point of our operator is `main.go`, kind of obvious... Let's have a look to this file.
+Let me start from the beginning the entry point of our operator is `main.go`, kind of obvious... Let's have a look to this file.
 
 First have a look to function `init()` here is where we add the APIs we want to use. In this case we're composing a `Scheme` with `clientgoscheme` and our own `gramophonev1`. 
 
@@ -743,7 +743,7 @@ Next stop, `SetupWithManager()` this function belongs to the controller where we
 	}
 ```
 
-Last stop, starting the controller. From the documentation: *"**Start() starts all registered Controllers** and blocks until the Stop channel is closed. **Returns an error if there is an error starting any controller**. If LeaderElection is used, the binary must be exited immediately after this returns, otherwise components that need leader election might continue to run after the leader lock was lost"*
+Last stop, starting the controller. From the documentation: *“**Start() starts all registered Controllers** and blocks until the Stop channel is closed. **Returns an error if there is an error starting any controller**. If LeaderElection is used, the binary must be exited immediately after this returns, otherwise components that need leader election might continue to run after the leader lock was lost”*
 
 ```go
 	setupLog.Info("starting manager")
@@ -843,7 +843,7 @@ Let's review the remaining questions:
 
 #### A note regarding RBAC
 
-As you have learnt, or guessed, Operators run as PODs and to do so a Service Account is involved and of course Roles and ClusterRoles should be created and linked with RoleBindings or ClusterRoleBindings respectively.
+As you have learned, or guessed, Operators run as PODs and to do so a Service Account is involved and of course Roles and ClusterRoles should be created and linked with RoleBindings or ClusterRoleBindings respectively.
 
 Since Operator SDK v1.0.0 and the introduction of Makefile all the assets needed related to RBAC are generated for you automatically. To do so kubebuilder underneath will help us to generate the roles from comments like the ones below.
 
@@ -927,7 +927,7 @@ You should see this in `./config/rbac/role.yaml`, then delete the comment and ru
 
 ## Running v0.0.1 locally
 
-Before we run our code we need to have a kubernetes cluster. Let's create one... no worries, if you already have one is fine.
+Before we run our code we need to have a Kubernetes cluster. Let's create one... no worries, if you already have one is fine.
 
 ```
 $ minikube start
@@ -963,7 +963,7 @@ make run
 
 Now try (from a second terminal) to create a CR using the sample generated by the Operator SDK. Don't worry you'll get an error.
 
-> **TIP:** Loadenvironmentt with `. ./settings.sh` and export PATH as we did before, export PATH=~/operators/bin:$PATH`
+> **TIP:** Load environment with `. ./settings.sh` and export PATH as we did before, export PATH=~/operators/bin:$PATH`
 
 ```sh
 $ kubectl apply -f ./config/samples/gramophone_v1_appservice.yaml 
@@ -972,7 +972,7 @@ The AppService "appservice-sample" is invalid: spec.size: Required value
 
 Open the file `./config/samples/gramophone_v1_appservice.yaml` and change it to resemble this one.
 
-> **TIP:** Try `size: -1` you should get this error: *The AppService "appservice-sample" is invalid: spec.size: Invalid value: 0: spec.size in body should be greater than or equal to 0*
+> **TIP:** Try `size: -1` you should get this error: *The AppService “appservice-sample” is invalid: spec.size: Invalid value: 0: spec.size in body should be greater than or equal to 0*
 
 ```yaml
 apiVersion: gramophone.atarazana.com/v1
@@ -1090,7 +1090,7 @@ First things first... **What's a bundle?**
 
 From the original [documentation](https://github.com/operator-framework/operator-registry#manifest-format) of the Operator Framework:
 
-> **We refer to a directory of files with one ClusterServiceVersion as a "bundle"**. A bundle **typically includes a ClusterServiceVersion and the CRDs that define the owned APIs of the CSV in its manifest directory**, though additional objects may be included. **It also includes an annotations file in its metadata folder which defines some higher level aggregate data** that helps to describe the format and package information about how the bundle should be added into an index of bundles.
+> **We refer to a directory of files with one ClusterServiceVersion as a “bundle”**. A bundle **typically includes a ClusterServiceVersion and the CRDs that define the owned APIs of the CSV in its manifest directory**, though additional objects may be included. **It also includes an annotations file in its metadata folder which defines some higher level aggregate data** that helps to describe the format and package information about how the bundle should be added into an index of bundles.
 
 **Example bundle**
 
@@ -1204,7 +1204,7 @@ spec:
 
 After making changes to the base file you have to run `make bundle` again to propagate them to the bundle. Open again file `./config/manifests/base/${OPERATOR_NAME}.clusterserviceversion.yaml` and check our changes are there.
 
-So far we have generated the bundle, but we need to create an image with it. This is the way we store manifests and metadata contents of invidual bundles. Later we will use a tool called `opm` to build and index with it.
+So far we have generated the bundle, but we need to create an image with it. This is the way we store manifests and metadata contents of individual bundles. Later we will use a tool called `opm` to build and index with it.
 
 Maybe you didn't notice but as we generated the bundle folder also `bundle.Dockerfile` was generated. This dockerfile copies the contents of the bundle to the image which is a scratch image (not based on anyone). LABELS
 
@@ -1274,7 +1274,7 @@ To make your operator available to OLM, you can generate an index image via `opm
 opm index add --bundles quay.io/my-container-registry-namespace/my-manifest-bundle:0.0.1 --tag quay.io/my-container-registry-namespace/my-index:1.0.0
 ```
 
-**The resulting image is referred to as an "Index"**. It is an image which contains a database of pointers to operator manifest content that is easily queriable via an included API that is served when the container image is run.
+**The resulting image is referred to as an “Index”**. It is an image which contains a database of pointers to operator manifest content that is easily queriable via an included API that is served when the container image is run.
 
 **Index images are additive**, so you can add a new version of your operator bundle when you publish a new version. For instance:
 
@@ -1302,7 +1302,7 @@ Version: version.Version{OpmVersion:"v1.13.8-5-gfa10df6", GitCommit:"fa10df6", B
 
 Finally... we can generate version 0.0.1 or our index including version 0.0.1 of our bundle:
 
-> **NOTE:** Index versioning is independent... in this 'simple' lab we're alining bundles and indexes for the sake of simplicity.
+> **NOTE:** Index versioning is independent... in this 'simple' lab we're aligning bundles and indexes for the sake of simplicity.
 
 ```sh
 make index-build
@@ -1317,11 +1317,11 @@ make index-push
 
 Don't forget to make the image public!
 
-Congratulations you have created your first bundle index, now you can create a CatalogSource. But before you do, youd have to install OLM in your cluster (unless you're using OpenShift 4.x, then OLM is already in place).
+Congratulations you have created your first bundle index, now you can create a CatalogSource. But before you do, you'd have to install OLM in your cluster (unless you're using OpenShift 4.x, then OLM is already in place).
 
 ## Installing OLM
 
-Installing (and checking) OLM in a kubernetes cluster should be a straight forward task. Let's run first this command to check if OLM it's already installed intalled. Unless you have already installed OLM or your cluster is an OpenShift cluster you should get this error: 'no existing installation found'.
+Installing (and checking) OLM in a Kubernetes cluster should be a straight forward task. Let's run first this command to check if OLM it's already installed. Unless you have already installed OLM or your cluster is an OpenShift cluster you should get this error: 'no existing installation found'.
 
 ```sh
 $ operator-sdk olm status
@@ -1455,7 +1455,7 @@ Forwarding from 127.0.0.1:50051 -> 50051
 Forwarding from [::1]:50051 -> 50051
 ```
 
-From another terminal, subsitute `pkgName` value with ${OPERATOR_NAME}
+From another terminal, substitute `pkgName` value with `${OPERATOR_NAME}`
 
 ```sh
 $ grpcurl -plaintext -d '{"pkgName":"gramophone-operator","channelName":"alpha"}' localhost:50051 api.Registry/GetBundleForChannel
