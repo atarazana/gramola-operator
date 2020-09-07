@@ -28,7 +28,7 @@ So you can develop your own operator to then deploy it and upgrade it using **OL
 
 ## TL;DR
 
-This lab guide is divided into two parts.
+This guide is divided into two parts.
 
 In [Part One](./part-1-1.md) you'll learn:
 
