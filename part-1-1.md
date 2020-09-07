@@ -1110,11 +1110,11 @@ So a bundle is a bunch of files that define the operator and how to run it, it i
 
 **How do you make a bundle?**
 
-As mostly everything since Operator SDK 1.0.0 there's a makefile target for it. And you guessed well it `make bundle`. So go to the terminal window, make sure the environment is loaded and run:
+As mostly everything since Operator SDK 1.0.0 there's a makefile target for it. And you guessed well you run it with `make bundle`. So go to the terminal window, make sure the environment is loaded and run:
 
 > **TIP:** Before running the command have a look to the output bellow and prepare some nice answers to the questions asked while running the target. No worries, you can change those later if you need to.
 
-```
+```sh
 $ make bundle
 go: creating new go.mod: module tmp
 go: finding sigs.k8s.io/controller-tools/cmd v0.3.0
@@ -1257,8 +1257,21 @@ Again, first things first... **What's a Bundle Index?**
 From the documentation [here](https://github.com/operator-framework/operator-registry#building-an-index-of-operators-using-opm)
 
 > 1. OLM has the concept of **CatalogSources** which **define a reference to what packages are available to install onto a cluster**.
-> 2. To make your bundle available, **you can add the bundle to a container image which the CatalogSource points to**. 
+> 2. To make your bundle available, **you can add the bundle to a container image which the CatalogSource points to (the bundle index)**. 
 > 3. **This image contains a database of pointers to bundle images** that OLM can pull and extract the manifests from in order to install an operator. 
+
+The image that follows shows the structure of channels, bundles, bundles indexes and operator images. Let me explain it a little bit. 
+
+Everything in a round-cornered rectangle is an image, we have:
+
+* Images containing the binary of our operator, for example: `operator-image:v0.0.2`
+* The we have bundle images, such as `operator-bundle:v0.0.2`, these contain the manifests corresponding to a given version and in which channels it is visible. It's important to note that if one version replaces another one it's stated in one of these manifests, specifically on the CSV.
+* Finally we have bundle indexes images like `operator-index:v0.0.2` that hold a database which contains the bundles (manifests) of different versions and how they relate and into what channel and an GRPC service you can query.
+
+Additionally, I have colored lanes for channels and bundle indexes. So for instance index `operator-index:v0.0.2` comprises:
+* versions 0.0.1 TO 0.0.4 for alpha channel
+* versions 0.0.2 AND 0.0.4 for beta channel
+* version 0.0.2 for stable channel
 
 ![OLM Registry](./images/olm-diagram-1.svg)
 
