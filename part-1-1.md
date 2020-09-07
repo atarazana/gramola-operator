@@ -63,10 +63,6 @@ Export PATH:
 export PATH=~/operators/bin:$PATH
 ```
 
-## Being grateful first
-
-Parts of the code of this operator were borrowed from another [operator](https://github.com/mcouliba/openshift-workshop-operator) coded by my colleague [Madou](https://github.com/mcouliba).
-
 # Step 1: Creating the Gramola Operator
 
 The next steps are basically the ones in [this](https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/) guide. I just compiled the steps in that guide and simplified some things. I hope ;-)
