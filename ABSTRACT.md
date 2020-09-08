@@ -1,8 +1,10 @@
-# The Operator Framework 1.0 Xtreme Demo
+![Logo](./images/abstract.png)
+
+# The Operator Framework XT Edition Lab
 
 I know it sounds a like a terrible title for an article about Operators, too close to a typical gaming YouTube channel video, but I'm very excited... Why?
 
-Well, I started developing `demo` operators for research first, then to answer customers' doubts and guide them through the process of developing operators and finally because I like the subject. In any case, I started somewhere around February 2019 and since then til some days ago all versions of the Operator SDK were 0.x ... not anymore the **Operator SDK 1.0.0 is here and it comes with a lot of changes!**.
+Well, I started developing "demo/dummy" operators for research first, then to answer customers' doubts and guide them through the process of developing operators and finally because I like the subject. In any case, I started somewhere around February 2019 and since then til some days ago all versions of the Operator SDK were 0.x ... not anymore the **Operator SDK 1.0.0 is here and it comes with a lot of changes!**.
 
 For a thorough explanation of those changes I suggest you to go [`here`](https://www.openshift.com/blog/operator-sdk-reaches-v1.0).
 
@@ -24,7 +26,7 @@ Gramola is a simple application that shows a list of (musical) Events (hence the
 - **events**: Quarkus simple API
 - **events-database**: PostgreSQL 10 Database
 
-The operator deploys all the components, creates tables, Ingress rules or OpenShift Routes, etc. it also upgrades the database schema and migrates data if needed... BUT it's just a sample operator to, somewhat, openn your eyes to the possibilies the Operator Framework offers...
+The operator deploys all the components, creates tables, Ingress rules or OpenShift Routes, etc. it also upgrades the database schema and migrates data if needed... BUT it's just a sample operator to, somewhat, open your eyes to the possibilities the Operator Framework offers...
 
 Here you have a screenshot showing the end result and ultimate goal of the operator.
 
@@ -38,7 +40,7 @@ Ok, ok, TL;DR I guess.
 
 ## TL;DR
 
-I'm presenting an end-to-end Operator Framework laboratory and demo guide for Operaror SDK 1.0.0 all in the same [`repository`](https://github.com/atarazana/gramola-operator)
+I'm presenting an end-to-end Operator Framework laboratory and demo guide for Operator SDK 1.0.0 all in the same [`repository`](https://github.com/atarazana/gramola-operator)
 
 The purpose of this repository is twofold:
 
@@ -68,7 +70,7 @@ The **2nd part** of the guide explains how to run a complete demonstration using
 
 If you've arrived here maybe you don't need any additional motivations... if that's not the case, then don't skip this point.
 
-Operators in general are there to help you *deploying* *and maintining* complex, stateful systems. Some examples:
+Operators in general are there to help you *to deploy and maintain* complex, stateful systems. Some examples:
 
 * DataBases
 * Monitoring Systems
@@ -77,15 +79,15 @@ Operators in general are there to help you *deploying* *and maintining* complex,
 
 ![Operator Hub](./images/openshift-operator-hub.png)
 
-Ok, apparently basic systems your applications rely on, not your Apps themselve, because to deploy and maintain your apps you use CI/CD pipelines. 
+Ok, apparently basic systems your applications rely on, not your Apps themselves, because to deploy and maintain your apps you use CI/CD pipelines. 
 
 Well... I think that under some circumstances Operators are (another) a very valid options to deploy applications. Let's have a look to some of those circumstances:
 
 * You deploy complex systems for different branches in your company in Kubernetes clusters in different geolocations... Do your pipelines reach those locations? Or do you use scripts or other means to replicate the state of production in your main (1st) cluster.
-* You're a software vendor and your offering (event ticketing system, SAP based XYZ system) can be SaaS or on-premise on top of Kubernetes. You develop a product and use CI/CD pipelines internally but you have to deliver and maintain a `product`.
-* You don't develop all the custom software you consume. Do this 3rd companies developing for you end their pipelines in your cluster? Or do they use some automation mechanism or even scripts to deploy in productio while their CI/CD pipelines are internal.
+* You're a software vendor and your portfolio (event ticketing system, SAP based XYZ system) can be SaaS or on-premise on top of Kubernetes. You develop a product and use CI/CD pipelines internally but you have to deliver and maintain a `product`.
+* You don't develop all the custom software you consume. Do this 3rd companies developing for you end their pipelines in your cluster? Or do they use some automation mechanism or even scripts to deploy in production while their CI/CD pipelines are internal.
 
-My humble opinion is that it makes sense to develop an Operator given this or similar circumstances. Operators contain the logic otherwise scattered between different layers... and they're Kubernetes native artifacts.
+My humble opinion is that it makes sense to develop an Operator given these or similar circumstances. Operators contain the logic otherwise scattered between different layers... and they're Kubernetes native objects.
 
 ## The guide, the code, well all of it
 
