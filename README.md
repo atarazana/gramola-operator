@@ -1,4 +1,4 @@
-# End to End Operator Framework Lab and Demo
+# End to End Operator Framework Lab and Demo using Operator SDK 1.x
 
 ## Introduction
 
