@@ -645,7 +645,7 @@ type AppService struct {
 }
 ```
 
-There something else that needs to be generated, the CRD descriptors. So far we have defined the struct in go, but not the YAML representation of the same object. This is done with the next makefile target. Please run it:
+There something else that needs to be generated, the CRD descriptors. So far we have defined the struct in go, but not the YAML representation of that object. This is done with the next makefile target. Please run it:
 
 > **NOTE:** The generated CRD descriptor goes `./config/crd/bases`. Open the descriptor and you'll find `Size` and `Nodes`.
 
