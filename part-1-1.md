@@ -665,7 +665,7 @@ Now maybe you're wondering... **What's the entry point of a Controller? How does
 
 Let's change the code of our empty controller with this one. Open file `./controllers/appservice_controller.go`
 
-> **NOTE:** If you want to have a look to the original controller of the tutorial go [here](https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl).
+> **NOTE:** If you want to have a look to the original controller of the tutorial go [here](https://raw.githubusercontent.com/atarazana/gramola-operator/master/templates/memcached_controller.go.tmpl).
 
 ```sh
 curl https://raw.githubusercontent.com/operator-framework/operator-sdk/master/example/memcached-operator/memcached_controller.go.tmpl | \
