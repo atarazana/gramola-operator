@@ -353,7 +353,7 @@ all: manager
 K8S_VERSION = v1.18.2
 ETCD_VERSION = v3.4.3
 testbin:
-	curl -sSLo setup_envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/kubebuilder/master/scripts/setup_envtest_bins.sh 
+	curl -sSLo setup_envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/master/hack/setup-envtest.sh 
 	chmod +x setup_envtest.sh
 	./setup_envtest.sh $(K8S_VERSION) $(ETCD_VERSION)
 
