@@ -121,14 +121,16 @@ We need to create the folder for the template code and change to it.
 mkdir ${OPERATOR_NAME} && cd ${OPERATOR_NAME} 
 ```
 
+Let's generate the scaffold!
+
+```sh
+operator-sdk init --domain=${DOMAIN} --repo=github.com/${ORGANIZATION}/${OPERATOR_NAME}
+```
+
 We're going to need the environment variables inside the operator folder.
 
 ```sh
 mv ../settings.sh .
-```
-
-```sh
-operator-sdk init --domain=${DOMAIN} --repo=github.com/${ORGANIZATION}/${OPERATOR_NAME}
 ```
 
 You should get something like this... as the suggestion says let's create an api.
@@ -246,66 +248,39 @@ git add *
 git commit -a -m "init"
 ```
 
-## Preparing the test environment
+## Checking test target
 
-If you try to run tests you should get something like this.
-
-```sh
-...
-Ran 0 of 0 Specs in 0.009 seconds
-FAIL! -- 0 Passed | 0 Failed | 0 Pending | 0 Skipped
---- FAIL: TestAPIs (0.01s)
-FAIL
-coverage: 0.0% of statements
-FAIL	github.com/atarazana/gramola-operator/controllers	0.805s
-FAIL
-make: *** [test] Error 1
-```
-
-Let's fix this.
-
-Open `Makefile` and find this:
-
-```makefile
-# Run tests
-test: generate fmt vet manifests
-	go test ./... -coverprofile cover.out
-```
-
-Substitute with this to help you to install the required binaries/libraries and run the tests using those bins. Basically `Kubernetes` and `etcd` libraries/bins. 
-
-```makefile
-# Prepare Test Env: https://sdk.operatorframework.io/docs/golang/references/env-test-setup/
-# Setup binaries required to run the tests
-# See that it expects the Kubernetes and ETCD version
-K8S_VERSION = v1.18.2
-ETCD_VERSION = v3.4.3
-testbin:
-	curl -sSLo setup_envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/master/hack/setup-envtest.sh
-	chmod +x setup_envtest.sh
-	./setup_envtest.sh $(K8S_VERSION) $(ETCD_VERSION)
-
-# Run tests
-test: generate fmt vet manifests testbin
-    TESTBIN_DIR=$(pwd)/testbin TEST_ASSET_KUBECTL=${TESTBIN_DIR}/kubectl && \
-	TEST_ASSET_KUBE_APISERVER=${TESTBIN_DIR}/kube-apiserver && \
-	TEST_ASSET_ETCD=${TESTBIN_DIR}/etcd && \
-	go test ./... -coverprofile cover.out
-```
-
-Now get those bins!
+Run `test` target and check everything is fine.
 
 ```sh
-make testbin
+$ make test
+go: creating new go.mod: module tmp
+go: finding sigs.k8s.io/controller-tools/cmd v0.3.0
+go: finding sigs.k8s.io/controller-tools/cmd/controller-gen v0.3.0
+go: finding sigs.k8s.io v0.3.0
+/Users/cvicensa/go/bin/controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
+go fmt ./...
+go vet ./...
+/Users/cvicensa/go/bin/controller-gen "crd:trivialVersions=true" rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+mkdir -p /Users/.../gramophone-operator/testbin
+test -f /Users/.../gramophone-operator/testbin/setup-envtest.sh || curl -sSLo /Users/.../gramophone-operator/testbin/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.6.3/hack/setup-envtest.sh
+source /Users/.../gramophone-operator/testbin/setup-envtest.sh; fetch_envtest_tools /Users/.../gramophone-operator/testbin; setup_envtest_env /Users/.../gramophone-operator/testbin; go test ./... -coverprofile cover.out
+fetching envtest tools@1.16.4 (into '/Users/.../gramophone-operator/testbin')
+x bin/
+x bin/etcd
+x bin/kubectl
+x bin/kube-apiserver
+setting up env vars
+?   	github.com/atarazana/gramophone-operator	[no test files]
+?   	github.com/atarazana/gramophone-operator/api/v1	[no test files]
+ok  	github.com/atarazana/gramophone-operator/controllers	10.261s	coverage: 0.0% of statements
 ```
 
-Now you should have these binaries in `./testbin`
+There should be these binaries in `./testbin/bin`
 
 - `etcd`
 - `kube-apiserver`
 - `kubectl`
-
-Now if you run `make test` it shouldn't complain anymore.
 
 ## Let's dope the makefile a bit more
 
@@ -347,22 +322,12 @@ endif
 
 all: manager
 
-# Prepare Test Env: https://sdk.operatorframework.io/docs/golang/references/env-test-setup/
-# Setup binaries required to run the tests
-# See that it expects the Kubernetes and ETCD version
-K8S_VERSION = v1.18.2
-ETCD_VERSION = v3.4.3
-testbin:
-	curl -sSLo setup_envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/master/hack/setup-envtest.sh 
-	chmod +x setup_envtest.sh
-	./setup_envtest.sh $(K8S_VERSION) $(ETCD_VERSION)
-
 # Run tests
-test: generate fmt vet manifests testbin
-    TESTBIN_DIR=$(pwd)/testbin TEST_ASSET_KUBECTL=${TESTBIN_DIR}/kubectl && \
-	TEST_ASSET_KUBE_APISERVER=${TESTBIN_DIR}/kube-apiserver && \
-	TEST_ASSET_ETCD=${TESTBIN_DIR}/etcd && \
-	go test ./... -coverprofile cover.out
+ENVTEST_ASSETS_DIR = $(shell pwd)/testbin
+test: generate fmt vet manifests
+	mkdir -p $(ENVTEST_ASSETS_DIR)
+	test -f $(ENVTEST_ASSETS_DIR)/setup-envtest.sh || curl -sSLo $(ENVTEST_ASSETS_DIR)/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.6.3/hack/setup-envtest.sh
+	source $(ENVTEST_ASSETS_DIR)/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test ./... -coverprofile cover.out
 
 # Build manager binary
 manager: generate fmt vet
@@ -456,7 +421,7 @@ endif
 
 # Generate bundle manifests and metadata, then validate generated files.
 .PHONY: bundle
-bundle: manifests
+bundle: manifests kustomize
 	operator-sdk generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG)
 	$(KUSTOMIZE) build config/manifests | operator-sdk generate bundle -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
