@@ -252,7 +252,7 @@ What if it didn't... No problem, you can always debug... for instance with VSCod
 
 ```sh
 mkdir -p .vscode
-cat << EOF > .voscode/launch.json
+cat << EOF > .vscode/launch.json
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
